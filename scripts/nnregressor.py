@@ -7,6 +7,8 @@ import torch.nn.functional as F
 X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
+HIDDEN_SIZE = 50
+BATCH_SIZE = 10
 
 
 class NNRegressor(torch.nn.Module):
@@ -16,23 +18,22 @@ class NNRegressor(torch.nn.Module):
         self.model_type = model_type
         self.data = data
         self.save = save
-        self.x, self.y, input_size, output_size = self.load_data()
-        hidden_size = 50
-        # dataset = regression.load_data()
-        # train, val, test = regression.split_data(dataset)
-        torch.manual_seed(RANDOM_STATE)
-        self.fc1 = nn.Linear(input_size, hidden_size)
-        self.fc2 = nn.Linear(hidden_size, hidden_size)
-        self.fc3 = nn.Linear(hidden_size, output_size)
+        dataset, input_size, output_size = self.load_data()
+        self.train_loader, self.val_loader, self.test_loader = self.split_data(dataset)
+        self.fc1 = nn.Linear(input_size, HIDDEN_SIZE)
+        self.fc2 = nn.Linear(HIDDEN_SIZE, HIDDEN_SIZE)
+        self.fc3 = nn.Linear(HIDDEN_SIZE, output_size)
 
     def main(self):
-        epoch_loss = self.calculate_loss()
+        epoch_loss = self.calc_train()
+        # self.calc_loss(self.val_loader)
         # self.plot_loss(epoch_loss)
         self.test()
         # torch.save(net.state_dict(), args.save)
 
     def forward(self, x):
-        x = F.relu(self.fc1(x))
+        # x = F.relu(self.fc1(x))
+        x = self.fc1(x)
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
         return x
@@ -42,9 +43,9 @@ class NNRegressor(torch.nn.Module):
         y_train = np.array(np.loadtxt(self.data + Y_FILE))
         x = F.normalize(torch.from_numpy(x_train).float(), p=1.0, dim=1)
         y = F.normalize(torch.from_numpy(y_train).float(), p=1.0, dim=1)
-        return x, y, x_train.shape[1], y_train.shape[1]
-        # dataset = torch.utils.data.TensorDataset(x, y)
-        # return dataset
+        # return x, y, x_train.shape[1], y_train.shape[1]
+        dataset = torch.utils.data.TensorDataset(x, y)
+        return dataset, x_train.shape[1], y_train.shape[1]
 
     def split_data(self, dataset):
         n_train = int(len(dataset) * 0.6)
@@ -52,26 +53,41 @@ class NNRegressor(torch.nn.Module):
         n_test = len(dataset) - n_train - n_val
         torch.manual_seed(RANDOM_STATE)
         train, val, test = torch.utils.data.random_split(dataset, [n_train, n_val, n_test])
-        return train, val, test
+        train_loader = torch.utils.data.DataLoader(train, BATCH_SIZE, shuffle=True)
+        val_loader = torch.utils.data.DataLoader(val, BATCH_SIZE)
+        test_loader = torch.utils.data.DataLoader(test, BATCH_SIZE)
+        return train_loader, val_loader, test_loader
 
-    def calculate_loss(self):
+    def calc_train(self):
         num_epochs = 20
         lr = 0.01
-        self.train()
         optimizer = torch.optim.SGD(self.parameters(), lr)
         criterion = nn.MSELoss()
 
         epoch_loss = []
-        # for epoch in range(num_epochs):
-        for epoch in range(len(self.x)):
-            outputs = self(self.x)
-            loss = criterion(outputs, self.y)
-            epoch_loss.append(loss.item())
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            print('( Train ) Epoch : %.2d, Loss : %f' % (epoch + 1, loss))
+        for epoch in range(num_epochs):
+            for batch in self.train_loader:
+                x, t = batch
+                optimizer.zero_grad()
+                y = self(x)
+                loss = criterion(y, t)
+                epoch_loss.append(loss.item())
+                loss.backward()
+                optimizer.step()
+                print('( Train ) Epoch : %.2d, Loss : %f' % (epoch + 1, loss))
         return epoch_loss
+
+    def calc_loss(self, data_loader):
+        # optimizer = torch.optim.SGD(self.parameters(), lr)
+        criterion = nn.MSELoss()
+        epoch_loss = []
+        for batch in data_loader:
+            x, t = batch
+            y = self(x)
+            loss = criterion(y, t)
+            epoch_loss.append(loss.item())
+            loss.backward()
+            print('( Train ) Epoch : %.2d, Loss : %f' % loss)
 
     def plot_loss(self, epoch_loss):
         print("epoch_loss:", epoch_loss)
