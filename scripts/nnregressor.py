@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from torch.nn.functional import normalize
+from matplotlib import pyplot as plt
 
 X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
@@ -11,12 +12,22 @@ class NNRegressor(torch.nn.Module):
 
     def __init__(self, model_type, data, save):
         super(NNRegressor, self).__init__()
-        self.fc1 = torch.nn.Linear(155, 50)
-        self.fc2 = torch.nn.Linear(50, 50)
-        self.fc3 = torch.nn.Linear(50, 11)
         self.model_type = model_type
         self.data = data
         self.save = save
+        self.x, self.y, input_size, output_size = self.load_data()
+        hidden_size = 50
+        # dataset = regression.load_data()
+        # train, val, test = regression.split_data(dataset)
+        self.fc1 = torch.nn.Linear(input_size, hidden_size)
+        self.fc2 = torch.nn.Linear(hidden_size, hidden_size)
+        self.fc3 = torch.nn.Linear(hidden_size, output_size)
+
+    def main(self):
+        epoch_loss = self.calculate_loss()
+        # self.plot_loss(epoch_loss)
+        self.test()
+        # torch.save(net.state_dict(), args.save)
 
     def forward(self, x):
         x = torch.nn.functional.relu(self.fc1(x))
@@ -29,13 +40,11 @@ class NNRegressor(torch.nn.Module):
     def load_data(self):
         x_train = np.array(np.loadtxt(self.data + X_FILE))
         y_train = np.array(np.loadtxt(self.data + Y_FILE))
-        x = torch.from_numpy(x_train).float()
-        y = torch.from_numpy(y_train).float()
-        x = normalize(x, p=1.0, dim=1)
-        y = normalize(y, p=1.0, dim=1)
-        print("x:",x)
-        print("y:",y)
-        return x, y
+        print("x_train.shape", x_train.shape[1])
+        print("y_train.shape", y_train.shape[1])
+        x = normalize(torch.from_numpy(x_train).float(), p=1.0, dim=1)
+        y = normalize(torch.from_numpy(y_train).float(), p=1.0, dim=1)
+        return x, y, x_train.shape[1], y_train.shape[1]
         # dataset = torch.utils.data.TensorDataset(x, y)
         # return dataset
 
@@ -46,3 +55,41 @@ class NNRegressor(torch.nn.Module):
         torch.manual_seed(RANDOM_STATE)
         train, val, test = torch.utils.data.random_split(dataset, [n_train, n_val, n_test])
         return train, val, test
+
+    def calculate_loss(self):
+        num_epochs = 20
+        lr = 0.01
+        self.train()
+        optimizer = torch.optim.SGD(self.parameters(), lr)
+        criterion = torch.nn.MSELoss()
+
+        epoch_loss = []
+        # for epoch in range(num_epochs):
+        for epoch in range(len(self.x)):
+            outputs = self(self.x)
+            loss = criterion(outputs, self.y)
+            epoch_loss.append(loss.item())
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            print('( Train ) Epoch : %.2d, Loss : %f' % (epoch + 1, loss))
+        return epoch_loss
+
+    def plot_loss(self, epoch_loss):
+        print("epoch_loss:", epoch_loss)
+        plt.plot(epoch_loss)
+        plt.xlabel("#epoch")
+        plt.ylabel("loss")
+        plt.show()
+
+    def test(self):
+        x_test = np.array(np.loadtxt("data/test/" + X_FILE))
+        t_test = np.array(np.loadtxt("data/test/" + Y_FILE))
+        x_test = torch.from_numpy(x_test).float()
+        t_test = torch.from_numpy(t_test).float()
+        x_test = normalize(x_test, p=1.0, dim=1)
+        t_test = normalize(t_test, p=1.0, dim=1)
+        print('-------------------------------------')
+        y_test = self(x_test)
+        score = torch.mean((t_test - y_test) ** 2)
+        print('( Test )  MSE Score : %f' % score)
