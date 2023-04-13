@@ -1,5 +1,6 @@
 import argparse
 from nnregressor import NNRegressor
+from nnclassifier import NNClassifier
 
 X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
@@ -20,6 +21,11 @@ def main():
     if args.model_type == "regresion_nn":
         net = NNRegressor(args.model_type, args.data, args.save)
         net.main()
+    # Part 2 (Basic)
+    elif args.model_type == "classification_nn":
+        print("hoge")
+        # net = NNClassifier(args.model_type, args.data, args.save)
+        # net.main()
 
 
 if __name__ == "__main__":

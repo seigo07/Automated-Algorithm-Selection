@@ -8,10 +8,10 @@ Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
 
 
-class NNRegressor(torch.nn.Module):
+class NNClassifier(torch.nn.Module):
 
     def __init__(self, model_type, data, save):
-        super(NNRegressor, self).__init__()
+        super(NNClassifier, self).__init__()
         self.model_type = model_type
         self.data = data
         self.save = save
