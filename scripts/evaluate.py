@@ -20,7 +20,7 @@ def main():
     sbs_avg_cost = np.inf # the average cost of the SBS on the given dataset 
     vbs_avg_cost = np.inf # the average cost of the VBS on the given dataset
     # YOUR CODE HERE
-    # model = torch.load(args.model)
+    model = torch.load(args.model)
 
     # print results
     print(f"\nFinal results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")

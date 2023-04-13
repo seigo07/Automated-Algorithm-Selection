@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from torch.nn.functional import normalize
 
 X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
@@ -10,9 +11,9 @@ class NNRegressor(torch.nn.Module):
 
     def __init__(self, model_type, data, save):
         super(NNRegressor, self).__init__()
-        self.fc1 = torch.nn.Linear(155, 5)
-        self.fc2 = torch.nn.Linear(5, 5)
-        self.fc3 = torch.nn.Linear(5, 11)
+        self.fc1 = torch.nn.Linear(155, 50)
+        self.fc2 = torch.nn.Linear(50, 50)
+        self.fc3 = torch.nn.Linear(50, 11)
         self.model_type = model_type
         self.data = data
         self.save = save
@@ -30,6 +31,10 @@ class NNRegressor(torch.nn.Module):
         y_train = np.array(np.loadtxt(self.data + Y_FILE))
         x = torch.from_numpy(x_train).float()
         y = torch.from_numpy(y_train).float()
+        x = normalize(x, p=1.0, dim=1)
+        y = normalize(y, p=1.0, dim=1)
+        print("x:",x)
+        print("y:",y)
         return x, y
         # dataset = torch.utils.data.TensorDataset(x, y)
         # return dataset
