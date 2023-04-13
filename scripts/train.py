@@ -1,9 +1,13 @@
 import argparse
+import numpy as np
 
 from matplotlib import pyplot as plt
 
 from nnregressor import NNRegressor
 import torch
+
+X_FILE = "instance-features.txt"
+Y_FILE = "performance-data.txt"
 
 def main():
     parser = argparse.ArgumentParser(description="Train an AS model and save it to file")
@@ -42,8 +46,9 @@ def main():
         ax.plot(list(range(len(epoch_loss))), epoch_loss)
         ax.set_xlabel('#epoch')
         ax.set_ylabel('loss')
-        fig.show()
         plt.show()
+
+        # torch.save(net.state_dict(), args.save)
 
 if __name__ == "__main__":
     main()
