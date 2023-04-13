@@ -27,9 +27,10 @@ def main():
         x, y = net.load_data()
         # dataset = regression.load_data()
         # train, val, test = regression.split_data(dataset)
-        num_epochs = 1000
+        num_epochs = 20
+        lr = 0.01
         net.train()
-        optimizer = torch.optim.SGD(net.parameters(), lr=0.01)
+        optimizer = torch.optim.SGD(net.parameters(), lr)
         criterion = torch.nn.MSELoss()
 
         epoch_loss = []
@@ -41,14 +42,15 @@ def main():
             optimizer.step()
             epoch_loss.append(loss.data.numpy().tolist())
 
-        fig = plt.figure()
-        ax = fig.add_subplot()
-        ax.plot(list(range(len(epoch_loss))), epoch_loss)
-        ax.set_xlabel('#epoch')
-        ax.set_ylabel('loss')
-        plt.show()
+        # fig = plt.figure()
+        # ax = fig.add_subplot()
+        # ax.plot(list(range(len(epoch_loss))), epoch_loss)
+        # ax.set_xlabel('#epoch')
+        # ax.set_ylabel('loss')
+        # plt.show()
 
-        # torch.save(net.state_dict(), args.save)
+        print("epoch_loss:", epoch_loss)
+        torch.save(net.state_dict(), args.save)
 
 if __name__ == "__main__":
     main()
