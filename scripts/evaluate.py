@@ -1,6 +1,12 @@
 import argparse
 import numpy as np
 import torch
+import torch.nn.functional as F
+from nnregressor import NNRegressor
+
+X_FILE = "instance-features.txt"
+Y_FILE = "performance-data.txt"
+
 
 def main():
     parser = argparse.ArgumentParser(description="Evaluate a trained AS model on a test set")
@@ -20,7 +26,12 @@ def main():
     sbs_avg_cost = np.inf # the average cost of the SBS on the given dataset 
     vbs_avg_cost = np.inf # the average cost of the VBS on the given dataset
     # YOUR CODE HERE
-    # model = torch.load(args.model)
+    # Part 1
+    if args.model == "models/part1.pt":
+        model = NNRegressor(args.data, "")
+        model.load_state_dict(torch.load(args.model))
+        model.eval()
+        model.test_net()
 
     # print results
     print(f"\nFinal results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")

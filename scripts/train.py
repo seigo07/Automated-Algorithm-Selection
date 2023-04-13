@@ -19,12 +19,12 @@ def main():
     # YOUR CODE HERE
     # Part 1
     if args.model_type == "regresion_nn":
-        net = NNRegressor(args.model_type, args.data, args.save)
+        net = NNRegressor(args.data, args.save)
         net.main()
     # Part 2 (Basic)
     elif args.model_type == "classification_nn":
         print("hoge")
-        # net = NNClassifier(args.model_type, args.data, args.save)
+        # net = NNClassifier(args.data, args.save)
         # net.main()
 
 
