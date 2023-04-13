@@ -37,10 +37,16 @@ def main():
         for epoch in range(num_epochs):
             outputs = net(x)
             loss = criterion(outputs, y)
+            epoch_loss.append(loss.item())
+            # epoch_loss.append(loss.data.numpy().tolist())
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            epoch_loss.append(loss.data.numpy().tolist())
+
+        plt.plot(epoch_loss)
+        plt.xlabel("#epoch")
+        plt.ylabel("loss")
+        plt.show()
 
         # fig = plt.figure()
         # ax = fig.add_subplot()
@@ -50,7 +56,7 @@ def main():
         # plt.show()
 
         print("epoch_loss:", epoch_loss)
-        torch.save(net.state_dict(), args.save)
+        # torch.save(net.state_dict(), args.save)
 
 if __name__ == "__main__":
     main()
