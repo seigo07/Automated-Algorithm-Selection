@@ -26,10 +26,9 @@ class NNRegressor(torch.nn.Module):
 
     def main(self):
         self.train_net()
-        self.calc_loss(self.val_loader, "Val")
-        # self.calc_loss(self.test_loader, "Test")
-        # self.test()
+        avg_loss = self.calc_loss(self.val_loader, "Val")
         torch.save(self.state_dict(), self.save)
+        return avg_loss
 
     def forward(self, x):
         # x = F.relu(self.fc1(x))
@@ -82,29 +81,34 @@ class NNRegressor(torch.nn.Module):
                 # print('( Train ) Epoch : %.2d, Loss : %f' % (epoch + 1, loss))
         avg_loss = torch.tensor(losses).mean()
         print("( Train ) avg_loss: {:.6f}%".format(avg_loss))
-        # print("min:",min(epoch_loss))
-        # self.plot_loss(epoch_loss)
+        # print("min:",min(losses))
+        # self.plot_loss(losses)
 
     def test_net(self):
         dataset, _, _ = self.load_data()
         train_loader = torch.utils.data.DataLoader(dataset, BATCH_SIZE, shuffle=True)
-        self.calc_loss(train_loader, "Test")
-        # print('-------------------------------------')
-        # y_test = self(x_test)
-        # score = torch.mean((t_test - y_test) ** 2)
-        # print('( Test )  MSE Score : %f' % score)
+        avg_loss = self.calc_loss(train_loader, "Test")
+        return avg_loss
 
     def calc_loss(self, data_loader, mode):
         criterion = nn.MSELoss()
         losses = []
-        for x, t in data_loader:
+        # correct = 0
+        # total = 0
+        for data in data_loader:
+            x, t = data
             y = self(x)
             loss = criterion(y, t)
             losses.append(loss.item())
             loss.backward()
             # print("( "+mode+" ) Loss : ", loss)
+            # _, predicted = torch.max(y.data, 1)
+            # total += t.size(0)
+            # correct += (predicted == 5).sum().item()
         avg_loss = torch.tensor(losses).mean()
         print("( "+mode+" ) avg_loss: {:.6f}%".format(avg_loss))
+        # print('Accuracy: %d %%' % (100 * correct / total))
+        return avg_loss
 
     def plot_loss(self, epoch_loss):
         print("epoch_loss:", epoch_loss)

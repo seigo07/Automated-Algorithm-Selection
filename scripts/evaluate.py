@@ -31,7 +31,7 @@ def main():
         model = NNRegressor(args.data, "")
         model.load_state_dict(torch.load(args.model))
         model.eval()
-        model.test_net()
+        avg_loss = model.test_net()
 
     # print results
     print(f"\nFinal results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")
