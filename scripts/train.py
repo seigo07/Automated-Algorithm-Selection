@@ -23,9 +23,8 @@ def main():
         net.main()
     # Part 2 (Basic)
     elif args.model_type == "classification_nn":
-        print("hoge")
-        # net = NNClassifier(args.data, args.save)
-        # net.main()
+        net = NNClassifier(args.data, args.save)
+        net.main()
 
 
 if __name__ == "__main__":

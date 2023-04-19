@@ -31,11 +31,13 @@ class NNRegressor(torch.nn.Module):
         return avg_loss
 
     def forward(self, x):
-        # x = F.relu(self.fc1(x))
         x = self.fc1(x)
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
         return x
+
+    def lossfun(self, y, t):
+        return F.mse_loss(y, t)
 
     def load_data(self):
         x_data = np.array(np.loadtxt(self.data + X_FILE))
@@ -67,14 +69,13 @@ class NNRegressor(torch.nn.Module):
         num_epochs = 20
         lr = 0.01
         optimizer = torch.optim.SGD(self.parameters(), lr)
-        criterion = nn.MSELoss()
         losses = []
         for epoch in range(num_epochs):
             self.train()
             for x, t in self.train_loader:
                 optimizer.zero_grad()
                 y = self(x)
-                loss = criterion(y, t)
+                loss = self.lossfun(y, t)
                 losses.append(loss.item())
                 loss.backward()
                 optimizer.step()
@@ -91,23 +92,16 @@ class NNRegressor(torch.nn.Module):
         return avg_loss
 
     def calc_loss(self, data_loader, mode):
-        criterion = nn.MSELoss()
         losses = []
-        # correct = 0
-        # total = 0
         for data in data_loader:
             x, t = data
             y = self(x)
-            loss = criterion(y, t)
+            loss = self.lossfun(y, t)
             losses.append(loss.item())
             loss.backward()
             # print("( "+mode+" ) Loss : ", loss)
-            # _, predicted = torch.max(y.data, 1)
-            # total += t.size(0)
-            # correct += (predicted == 5).sum().item()
         avg_loss = torch.tensor(losses).mean()
         print("( "+mode+" ) avg_loss: {:.6f}%".format(avg_loss))
-        # print('Accuracy: %d %%' % (100 * correct / total))
         return avg_loss
 
     def plot_loss(self, epoch_loss):
