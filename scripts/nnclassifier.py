@@ -79,10 +79,10 @@ class NNClassifier(torch.nn.Module):
                 y = self(x)
                 loss = self.lossfun(y, t)
                 losses.append(loss.item())
-                y_label = torch.argmax(y, dim=1)
+                loss.backward()
+                y_label = torch.argmax(y, dim=0)
                 acc = torch.sum(t == y_label) * 1.0 / len(t)
                 acces.append(acc)
-                loss.backward()
                 optimizer.step()
                 # print('( Train ) Epoch : %.2d, Loss : %f' % (epoch + 1, loss))
         avg_loss = torch.tensor(losses).mean()
@@ -95,21 +95,28 @@ class NNClassifier(torch.nn.Module):
     def test_net(self):
         dataset, _, _ = self.load_data()
         train_loader = torch.utils.data.DataLoader(dataset, BATCH_SIZE, shuffle=True)
-        val_loss = self.calc_loss(train_loader, "Test")
-        return val_loss
+        results = self.calc_loss(train_loader, "Test")
+        return results
 
     def calc_loss(self, data_loader, mode):
         losses = []
+        acces = []
         for data in data_loader:
             x, t = data
             y = self(x)
             loss = self.lossfun(y, t)
             losses.append(loss.item())
             loss.backward()
+            y_label = torch.argmax(y, dim=0)
+            acc = torch.sum(t == y_label) * 1.0 / len(t)
+            acces.append(acc)
             # print("( "+mode+" ) Loss : ", loss)
-        val_loss = torch.tensor(losses).mean()
-        print("( "+mode+" ) val_loss: {:.6f}%".format(val_loss))
-        return val_loss
+        avg_loss = torch.tensor(losses).mean()
+        avg_acc = torch.tensor(acces).mean()
+        print("( "+mode+" ) avg_loss: {:.6f}%".format(avg_loss))
+        print("( "+mode+" ) avg_acc: {:.6f}%".format(avg_acc))
+        results = {'avg_loss': avg_loss, 'avg_acc': avg_acc}
+        return results
 
     def plot_loss(self, epoch_loss):
         print("epoch_loss:", epoch_loss)

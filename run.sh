@@ -20,7 +20,7 @@ echo ""
 # train a model for part 2 - basic (classification-based ANN) and evaluate it
 echo "#########   PART 2 (basic): classification-based model ################"
 python scripts/train.py --model-type classification_nn --data data/train/ --save models/part2_basic.pt
-python scripts/evaluate.py --model models/part2_basic.pt --model models/part2.pt --data data/test/
+python scripts/evaluate.py --model models/part2_basic.pt --data data/test/
 echo ""
 
 echo "#########   PART 2 (advanced): cost-sensitive classification-based model ################"
