@@ -72,6 +72,7 @@ class NNClassifier(torch.nn.Module):
         optimizer = torch.optim.SGD(self.parameters(), lr)
         losses = []
         acces = []
+        self.eval()
         for epoch in range(num_epochs):
             self.train()
             for x, t in self.train_loader:
@@ -80,11 +81,12 @@ class NNClassifier(torch.nn.Module):
                 loss = self.lossfun(y, t)
                 losses.append(loss.item())
                 loss.backward()
-                y_label = torch.argmax(y, dim=0)
-                acc = torch.sum(t == y_label) * 1.0 / len(t)
-                acces.append(acc)
-                optimizer.step()
                 # print('( Train ) Epoch : %.2d, Loss : %f' % (epoch + 1, loss))
+                _, predicted = torch.max(y, 0)
+                correct = (predicted == t).sum().item()
+                total = t.size(0)
+                accuracy = correct / total
+                acces.append(accuracy)
         avg_loss = torch.tensor(losses).mean()
         avg_acc = torch.tensor(acces).mean()
         print("( Train ) avg_loss: {:.6f}%".format(avg_loss))
@@ -101,16 +103,19 @@ class NNClassifier(torch.nn.Module):
     def calc_loss(self, data_loader, mode):
         losses = []
         acces = []
+        self.eval()
         for data in data_loader:
             x, t = data
             y = self(x)
             loss = self.lossfun(y, t)
             losses.append(loss.item())
             loss.backward()
-            y_label = torch.argmax(y, dim=0)
-            acc = torch.sum(t == y_label) * 1.0 / len(t)
-            acces.append(acc)
             # print("( "+mode+" ) Loss : ", loss)
+            _, predicted = torch.max(y, 0)
+            correct = (predicted == t).sum().item()
+            total = t.size(0)
+            accuracy = correct / total
+            acces.append(accuracy)
         avg_loss = torch.tensor(losses).mean()
         avg_acc = torch.tensor(acces).mean()
         print("( "+mode+" ) avg_loss: {:.6f}%".format(avg_loss))
