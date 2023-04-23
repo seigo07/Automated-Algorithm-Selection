@@ -93,8 +93,12 @@ class NNRegressor(torch.nn.Module):
 
     def calc_loss(self, data_loader, mode):
         losses = []
+        costs = []
         for data in data_loader:
             x, t = data
+            for cost in t:
+                for c in cost:
+                    costs.append(c)
             y = self(x)
             loss = self.lossfun(y, t)
             losses.append(loss.item())
@@ -102,7 +106,9 @@ class NNRegressor(torch.nn.Module):
             # print("( "+mode+" ) Loss : ", loss)
         avg_loss = torch.tensor(losses).mean()
         print("( "+mode+" ) avg_loss: {:.6f}%".format(avg_loss))
-        return avg_loss
+        avg_cost = torch.tensor(costs).mean()
+        print("( "+mode+" ) avg_cost: {:.6f}%".format(avg_cost))
+        return avg_loss, avg_cost
 
     def plot_loss(self, epoch_loss):
         print("epoch_loss:", epoch_loss)

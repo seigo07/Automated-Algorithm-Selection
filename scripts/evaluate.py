@@ -31,23 +31,23 @@ def main():
         model = NNRegressor(args.data, "")
         model.load_state_dict(torch.load(args.model))
         model.eval()
-        avg_loss = model.test_net()
+        avg_loss, avg_cost = model.test_net()
     # Part 2 (basic)
-    elif args.model == "models/part2_basic.pt":
-        model = NNClassifier(args.data, "")
-        model.load_state_dict(torch.load(args.model))
-        model.eval()
-        results = model.test_net()
-        avg_loss = results["avg_loss"]
-        accuracy = results["avg_acc"]
-    # Part 2 (advanced)
-    elif args.model == "models/part2_advanced.pt":
-        model = NNClassifier(args.data, "")
-        model.load_state_dict(torch.load(args.model))
-        model.eval()
-        results = model.test_net()
-        avg_loss = results["avg_loss"]
-        accuracy = results["avg_acc"]
+    # elif args.model == "models/part2_basic.pt":
+    #     model = NNClassifier(args.data, "")
+    #     model.load_state_dict(torch.load(args.model))
+    #     model.eval()
+    #     results = model.test_net()
+    #     avg_loss = results["avg_loss"]
+    #     accuracy = results["avg_acc"]
+    # # Part 2 (advanced)
+    # elif args.model == "models/part2_advanced.pt":
+    #     model = NNClassifier(args.data, "")
+    #     model.load_state_dict(torch.load(args.model))
+    #     model.eval()
+    #     results = model.test_net()
+    #     avg_loss = results["avg_loss"]
+    #     accuracy = results["avg_acc"]
 
     # print results
     print(f"\nFinal results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")

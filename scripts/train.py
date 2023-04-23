@@ -22,13 +22,13 @@ def main():
         net = NNRegressor(args.data, args.save)
         net.main()
     # Part 2 (basic)
-    elif args.model_type == "classification_nn":
-        net = NNClassifier(args.data, args.save)
-        net.main()
-    # Part 2 (advanced)
-    elif args.model_type == "classification_nn_cost":
-        net = NNClassifier(args.data, args.save)
-        net.main()
+    # elif args.model_type == "classification_nn":
+    #     net = NNClassifier(args.data, args.save)
+    #     net.main()
+    # # Part 2 (advanced)
+    # elif args.model_type == "classification_nn_cost":
+    #     net = NNClassifier(args.data, args.save)
+    #     net.main()
 
 
 if __name__ == "__main__":
