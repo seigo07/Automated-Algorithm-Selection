@@ -33,14 +33,16 @@ class NNClassifier(torch.nn.Module):
         x = F.softmax(self.fc3(x))
         return x
 
-    def lossfn(self, y, t):
-        return F.cross_entropy(y, t)
+    def lossfn(self, y_pred, y):
+        return F.cross_entropy(y_pred, y)
 
     def load_data(self):
         x_data = np.array(np.loadtxt(self.data + X_FILE))
         y_data = np.array(np.loadtxt(self.data + Y_FILE))
-        x = F.normalize(torch.from_numpy(x_data).float(), p=1.0, dim=1)
-        y = F.normalize(torch.from_numpy(y_data).float(), p=1.0, dim=1)
+        # x = F.normalize(torch.from_numpy(x_data).float(), p=1.0, dim=1)
+        # y = F.normalize(torch.from_numpy(y_data).float(), p=1.0, dim=1)
+        x = torch.from_numpy(np.round(x_data)).float()
+        y = torch.from_numpy(np.round(np.log10(y_data))).float()
         dataset = torch.utils.data.TensorDataset(x, y)
         return dataset, x_data.shape[1], y_data.shape[1]
 
@@ -60,7 +62,7 @@ class NNClassifier(torch.nn.Module):
         for epoch in range(num_epochs):
             for x, y in self.train_loader:
                 y_pred = self(x)
-                loss = self.lossfn(y, y_pred)
+                loss = self.lossfn(y_pred, y)
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
@@ -106,13 +108,20 @@ class NNClassifier(torch.nn.Module):
         with torch.no_grad():
             total_cost = 0
             total_loss = 0
+            correct = 0
+            total = 0
             for x, y in data_loader:
                 y_pred = self(x)
                 total_cost += torch.abs(y_pred - y).sum().item()
                 mse_loss = self.lossfn(y_pred, y)
                 total_loss += mse_loss.item() * len(x)
-            avg_cost = total_cost / len(dataset)
-            avg_loss = total_loss / len(dataset)
+                _, predicted = torch.max(y_pred.data, 0)
+                total += y.size(0)
+                correct += (predicted == y).sum().item()
+        accuracy = 100 * correct / total
+        avg_cost = total_cost / len(dataset)
+        avg_loss = total_loss / len(dataset)
+        print("accuracy:", accuracy)
         print("avg_cost:", avg_cost)
         print("avg_loss:", avg_loss)
         return avg_cost, avg_loss

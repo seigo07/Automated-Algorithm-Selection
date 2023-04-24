@@ -33,8 +33,8 @@ class NNRegressor(torch.nn.Module):
         x = self.fc3(x)
         return x
 
-    def lossfn(self, y, t):
-        return F.mse_loss(y, t)
+    def lossfn(self, y_pred, y):
+        return F.mse_loss(y_pred, y)
 
     def load_data(self):
         x_data = np.array(np.loadtxt(self.data + X_FILE))
@@ -64,7 +64,7 @@ class NNRegressor(torch.nn.Module):
         for epoch in range(num_epochs):
             for x, y in self.train_loader:
                 y_pred = self(x)
-                loss = self.lossfn(y, y_pred)
+                loss = self.lossfn(y_pred, y)
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
