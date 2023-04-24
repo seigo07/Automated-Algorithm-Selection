@@ -103,8 +103,8 @@ class NNRegressor(torch.nn.Module):
     def test(self):
         dataset, _, _ = self.load_data()
         test_loader = torch.utils.data.DataLoader(dataset, BATCH_SIZE, shuffle=True)
-        avg_loss = self.test_net(dataset, test_loader)
-        return avg_loss
+        result = self.test_net(dataset, test_loader)
+        return result
 
     def test_net(self, dataset, data_loader):
         with torch.no_grad():
@@ -117,6 +117,5 @@ class NNRegressor(torch.nn.Module):
                 total_loss += mse_loss.item() * len(x)
             avg_cost = total_cost / len(dataset)
             avg_loss = total_loss / len(dataset)
-        print("avg_cost:", avg_cost)
-        print("avg_loss:", avg_loss)
-        return avg_cost, avg_loss
+        result = {"avg_cost": avg_cost, "avg_loss": avg_loss}
+        return result
