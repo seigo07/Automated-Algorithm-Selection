@@ -71,23 +71,34 @@ class NNRegressor(torch.nn.Module):
                 # print('( Train ) Epoch : %.2d, Loss : %f' % (epoch + 1, loss))
 
     def validation_net(self):
-        best_mse_loss = float('inf')
-        best_model = None
+        sbs_avg_cost = float('inf')
+        sbs = None
+        vbs_avg_cost = float('inf')
+        vbs = None
         with torch.no_grad():
-            total_mse_loss = 0
+            total_cost = 0
+            total_loss = 0
             for x, y in self.val_loader:
                 y_pred = self(x)
+                total_cost += torch.abs(y_pred - y).sum().item()
                 mse_loss = self.lossfn(y_pred, y)
-                total_mse_loss += mse_loss.item() * len(x)
-            avg_mse_loss = total_mse_loss / len(self.val_dataset)
+                total_loss += mse_loss.item() * len(x)
+            avg_cost = total_cost / len(self.val_dataset)
+            avg_loss = total_loss / len(self.val_dataset)
 
-            # If this is the best model so far, save it
-            if avg_mse_loss < best_mse_loss:
-                best_mse_loss = avg_mse_loss
-                best_model = self.state_dict()
+            # If this is SBS so far, save it
+            if avg_cost < sbs_avg_cost:
+                sbs_avg_cost = avg_cost
+                sbs = self.state_dict()
+            # If this is VBS so far, save it
+            if avg_loss < vbs_avg_cost:
+                vbs_avg_cost = avg_loss
+                vbs = self.state_dict()
 
-        print("best_mse_loss:", best_mse_loss)
-        print("best_model:", best_model)
+        print("sbs_avg_cost:", sbs_avg_cost)
+        print("sbs:", sbs)
+        print("vbs_avg_cost:", vbs_avg_cost)
+        print("vbs:", vbs)
 
     def test(self):
         dataset, _, _ = self.load_data()
@@ -97,13 +108,15 @@ class NNRegressor(torch.nn.Module):
 
     def test_net(self, dataset, data_loader):
         with torch.no_grad():
-            total_mse_loss = 0
+            total_cost = 0
+            total_loss = 0
             for x, y in data_loader:
                 y_pred = self(x)
+                total_cost += torch.abs(y_pred - y).sum().item()
                 mse_loss = self.lossfn(y_pred, y)
-                total_mse_loss += mse_loss.item() * len(x)
-
-            avg_mse_loss = total_mse_loss / len(dataset)
-            print("avg_mse_loss:", avg_mse_loss)
-
-        return avg_mse_loss
+                total_loss += mse_loss.item() * len(x)
+            avg_cost = total_cost / len(dataset)
+            avg_loss = total_loss / len(dataset)
+        print("avg_cost:", avg_cost)
+        print("avg_loss:", avg_loss)
+        return avg_cost, avg_loss
