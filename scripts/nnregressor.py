@@ -96,9 +96,9 @@ class NNRegressor(torch.nn.Module):
                 vbs = self.state_dict()
 
         print("sbs_avg_cost:", sbs_avg_cost)
-        print("sbs:", sbs)
+        # print("sbs:", sbs)
         print("vbs_avg_cost:", vbs_avg_cost)
-        print("vbs:", vbs)
+        # print("vbs:", vbs)
 
     def test(self):
         dataset, _, _ = self.load_data()

@@ -32,13 +32,10 @@ def main():
         model.load_state_dict(torch.load(args.model))
         avg_cost, avg_loss = model.test()
     # Part 2 (basic)
-    # elif args.model == "models/part2_basic.pt":
-    #     model = NNClassifier(args.data, "")
-    #     model.load_state_dict(torch.load(args.model))
-    #     model.eval()
-    #     results = model.test_net()
-    #     avg_loss = results["avg_loss"]
-    #     accuracy = results["avg_acc"]
+    elif args.model == "models/part2_basic.pt":
+        model = NNClassifier(args.data, "")
+        model.load_state_dict(torch.load(args.model))
+        avg_cost, avg_loss = model.test()
     # # Part 2 (advanced)
     # elif args.model == "models/part2_advanced.pt":
     #     model = NNClassifier(args.data, "")
