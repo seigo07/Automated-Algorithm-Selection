@@ -30,8 +30,7 @@ def main():
     if args.model == "models/part1.pt":
         model = NNRegressor(args.data, "")
         model.load_state_dict(torch.load(args.model))
-        model.eval()
-        avg_loss, avg_cost = model.test_net()
+        avg_loss = model.test()
     # Part 2 (basic)
     # elif args.model == "models/part2_basic.pt":
     #     model = NNClassifier(args.data, "")

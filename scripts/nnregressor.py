@@ -1,5 +1,4 @@
 import numpy as np
-from matplotlib import pyplot as plt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -7,8 +6,8 @@ import torch.nn.functional as F
 X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
-HIDDEN_SIZE = 50
-BATCH_SIZE = 10
+HIDDEN_SIZE = 100
+BATCH_SIZE = 32
 
 
 class NNRegressor(torch.nn.Module):
@@ -18,17 +17,15 @@ class NNRegressor(torch.nn.Module):
         self.data = data
         self.save = save
         dataset, input_size, output_size = self.load_data()
-        self.train_loader, self.val_loader = self.split_data(dataset)
-        # self.train_loader, self.val_loader, self.test_loader = self.split_data(dataset)
+        self.train_dataset, self.val_dataset, self.train_loader, self.val_loader = self.split_data(dataset)
         self.fc1 = nn.Linear(input_size, HIDDEN_SIZE)
         self.fc2 = nn.Linear(HIDDEN_SIZE, HIDDEN_SIZE)
         self.fc3 = nn.Linear(HIDDEN_SIZE, output_size)
 
     def main(self):
         self.train_net()
-        avg_loss = self.calc_loss(self.val_loader, "Val")
+        self.validation_net()
         torch.save(self.state_dict(), self.save)
-        return avg_loss
 
     def forward(self, x):
         x = self.fc1(x)
@@ -36,7 +33,7 @@ class NNRegressor(torch.nn.Module):
         x = self.fc3(x)
         return x
 
-    def lossfun(self, y, t):
+    def lossfn(self, y, t):
         return F.mse_loss(y, t)
 
     def load_data(self):
@@ -44,6 +41,10 @@ class NNRegressor(torch.nn.Module):
         y_data = np.array(np.loadtxt(self.data + Y_FILE))
         x = F.normalize(torch.from_numpy(x_data).float(), p=1.0, dim=1)
         y = F.normalize(torch.from_numpy(y_data).float(), p=1.0, dim=1)
+        # target = torch.from_numpy(y_data).float()
+        # mean = torch.mean(target)
+        # std = torch.std(target)
+        # y = (target - mean) / std
         dataset = torch.utils.data.TensorDataset(x, y)
         return dataset, x_data.shape[1], y_data.shape[1]
 
@@ -51,68 +52,58 @@ class NNRegressor(torch.nn.Module):
         n_train = int(len(dataset) * 0.8)
         n_val = len(dataset) - n_train
         torch.manual_seed(RANDOM_STATE)
-        train, val = torch.utils.data.random_split(dataset, [n_train, n_val])
-        train_loader = torch.utils.data.DataLoader(train, BATCH_SIZE, shuffle=True)
-        val_loader = torch.utils.data.DataLoader(val, BATCH_SIZE)
-        return train_loader, val_loader
-        # n_train = int(len(dataset) * 0.6)
-        # n_val = int(len(dataset) * 0.2)
-        # n_test = len(dataset) - n_train - n_val
-        # torch.manual_seed(RANDOM_STATE)
-        # train, val, test = torch.utils.data.random_split(dataset, [n_train, n_val, n_test])
-        # train_loader = torch.utils.data.DataLoader(train, BATCH_SIZE, shuffle=True)
-        # val_loader = torch.utils.data.DataLoader(val, BATCH_SIZE)
-        # test_loader = torch.utils.data.DataLoader(test, BATCH_SIZE)
-        # return train_loader, val_loader, test_loader
+        train_dataset, val_dataset = torch.utils.data.random_split(dataset, [n_train, n_val])
+        train_loader = torch.utils.data.DataLoader(train_dataset, BATCH_SIZE, shuffle=True)
+        val_loader = torch.utils.data.DataLoader(val_dataset, BATCH_SIZE, shuffle=False)
+        return train_dataset, val_dataset, train_loader, val_loader
 
     def train_net(self):
         num_epochs = 20
         lr = 0.01
         optimizer = torch.optim.SGD(self.parameters(), lr)
-        losses = []
         for epoch in range(num_epochs):
-            self.train()
-            for x, t in self.train_loader:
+            for x, y in self.train_loader:
+                y_pred = self(x)
+                loss = self.lossfn(y, y_pred)
                 optimizer.zero_grad()
-                y = self(x)
-                loss = self.lossfun(y, t)
-                losses.append(loss.item())
                 loss.backward()
                 optimizer.step()
                 # print('( Train ) Epoch : %.2d, Loss : %f' % (epoch + 1, loss))
-        avg_loss = torch.tensor(losses).mean()
-        print("( Train ) avg_loss: {:.6f}%".format(avg_loss))
-        # print("min:",min(losses))
-        # self.plot_loss(losses)
 
-    def test_net(self):
+    def validation_net(self):
+        best_mse_loss = float('inf')
+        best_model = None
+        with torch.no_grad():
+            total_mse_loss = 0
+            for x, y in self.val_loader:
+                y_pred = self(x)
+                mse_loss = self.lossfn(y_pred, y)
+                total_mse_loss += mse_loss.item() * len(x)
+            avg_mse_loss = total_mse_loss / len(self.val_dataset)
+
+            # If this is the best model so far, save it
+            if avg_mse_loss < best_mse_loss:
+                best_mse_loss = avg_mse_loss
+                best_model = self.state_dict()
+
+        print("best_mse_loss:", best_mse_loss)
+        print("best_model:", best_model)
+
+    def test(self):
         dataset, _, _ = self.load_data()
-        train_loader = torch.utils.data.DataLoader(dataset, BATCH_SIZE, shuffle=True)
-        avg_loss = self.calc_loss(train_loader, "Test")
+        test_loader = torch.utils.data.DataLoader(dataset, BATCH_SIZE, shuffle=True)
+        avg_loss = self.test_net(dataset, test_loader)
         return avg_loss
 
-    def calc_loss(self, data_loader, mode):
-        losses = []
-        costs = []
-        for data in data_loader:
-            x, t = data
-            for cost in t:
-                for c in cost:
-                    costs.append(c)
-            y = self(x)
-            loss = self.lossfun(y, t)
-            losses.append(loss.item())
-            loss.backward()
-            # print("( "+mode+" ) Loss : ", loss)
-        avg_loss = torch.tensor(losses).mean()
-        print("( "+mode+" ) avg_loss: {:.6f}%".format(avg_loss))
-        avg_cost = torch.tensor(costs).mean()
-        print("( "+mode+" ) avg_cost: {:.6f}%".format(avg_cost))
-        return avg_loss, avg_cost
+    def test_net(self, dataset, data_loader):
+        with torch.no_grad():
+            total_mse_loss = 0
+            for x, y in data_loader:
+                y_pred = self(x)
+                mse_loss = self.lossfn(y_pred, y)
+                total_mse_loss += mse_loss.item() * len(x)
 
-    def plot_loss(self, epoch_loss):
-        print("epoch_loss:", epoch_loss)
-        plt.plot(epoch_loss)
-        plt.xlabel("#epoch")
-        plt.ylabel("loss")
-        plt.show()
+            avg_mse_loss = total_mse_loss / len(dataset)
+            print("avg_mse_loss:", avg_mse_loss)
+
+        return avg_mse_loss
