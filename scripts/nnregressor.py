@@ -71,14 +71,14 @@ class NNRegressor(torch.nn.Module):
                 # print('( Train ) Epoch : %.2d, Loss : %f' % (epoch + 1, loss))
 
     def validation_net(self):
-        sbs_avg_cost = float('inf')
-        sbs = None
-        vbs_avg_cost = float('inf')
-        vbs = None
         with torch.no_grad():
             total_cost = 0
             total_loss = 0
+            total_sbs = 0
+            total_vbs = 0
             for x, y in self.val_loader:
+                total_sbs += min(sum(y) / len(y))
+                total_vbs += min([min(m) for m in y])
                 y_pred = self(x)
                 avg_y_pred = sum(y_pred) / len(y_pred)
                 total_cost += sum(avg_y_pred) / len(avg_y_pred)
@@ -86,19 +86,8 @@ class NNRegressor(torch.nn.Module):
                 total_loss += mse_loss.item() * len(x)
             avg_cost = total_cost / len(self.val_dataset)
             avg_loss = total_loss / len(self.val_dataset)
-            # If this is SBS so far, save it
-            if avg_cost < sbs_avg_cost:
-                sbs_avg_cost = avg_cost
-                sbs = self.state_dict()
-            # If this is VBS so far, save it
-            if avg_loss < vbs_avg_cost:
-                vbs_avg_cost = avg_loss
-                vbs = self.state_dict()
-
-        print("sbs_avg_cost:", sbs_avg_cost)
-        # print("sbs:", sbs)
-        print("vbs_avg_cost:", vbs_avg_cost)
-        # print("vbs:", vbs)
+            sbs_avg_cost = total_sbs / len(self.val_dataset)
+            vbs_avg_cost = total_vbs / len(self.val_dataset)
 
     def test(self):
         dataset, _, _ = self.load_data()
@@ -110,7 +99,11 @@ class NNRegressor(torch.nn.Module):
         with torch.no_grad():
             total_cost = 0
             total_loss = 0
+            total_sbs = 0
+            total_vbs = 0
             for x, y in data_loader:
+                total_sbs += min(sum(y) / len(y))
+                total_vbs += min([min(m) for m in y])
                 y_pred = self(x)
                 avg_y_pred = sum(y_pred) / len(y_pred)
                 total_cost += sum(avg_y_pred) / len(avg_y_pred)
@@ -118,5 +111,12 @@ class NNRegressor(torch.nn.Module):
                 total_loss += mse_loss.item() * len(x)
             avg_cost = total_cost / len(dataset)
             avg_loss = total_loss / len(dataset)
-        result = {"avg_cost": avg_cost, "avg_loss": avg_loss}
-        return result
+            sbs_avg_cost = total_sbs / len(dataset)
+            vbs_avg_cost = total_vbs / len(dataset)
+            result = {
+                "avg_cost": avg_cost,
+                "avg_loss": avg_loss,
+                "sbs_avg_cost": sbs_avg_cost,
+                "vbs_avg_cost": vbs_avg_cost
+            }
+            return result
