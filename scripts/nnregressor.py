@@ -7,7 +7,7 @@ X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
 HIDDEN_SIZE = 100
-BATCH_SIZE = 32
+BATCH_SIZE = 10
 
 
 class NNRegressor(torch.nn.Module):
@@ -80,12 +80,12 @@ class NNRegressor(torch.nn.Module):
             total_loss = 0
             for x, y in self.val_loader:
                 y_pred = self(x)
-                total_cost += torch.abs(y_pred - y).sum().item()
+                avg_y_pred = sum(y_pred) / len(y_pred)
+                total_cost += sum(avg_y_pred) / len(avg_y_pred)
                 mse_loss = self.lossfn(y_pred, y)
                 total_loss += mse_loss.item() * len(x)
             avg_cost = total_cost / len(self.val_dataset)
             avg_loss = total_loss / len(self.val_dataset)
-
             # If this is SBS so far, save it
             if avg_cost < sbs_avg_cost:
                 sbs_avg_cost = avg_cost
@@ -112,7 +112,8 @@ class NNRegressor(torch.nn.Module):
             total_loss = 0
             for x, y in data_loader:
                 y_pred = self(x)
-                total_cost += torch.abs(y_pred - y).sum().item()
+                avg_y_pred = sum(y_pred) / len(y_pred)
+                total_cost += sum(avg_y_pred) / len(avg_y_pred)
                 mse_loss = self.lossfn(y_pred, y)
                 total_loss += mse_loss.item() * len(x)
             avg_cost = total_cost / len(dataset)

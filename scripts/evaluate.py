@@ -20,7 +20,7 @@ def main():
     # load the given model, make predictions on the given dataset and evaluate the model's performance. Your evaluation should report four evaluation metrics: avg_loss, accuracy, avg_cost, sbs_vbs_gap (as listed below)
     # you should also calculate the average cost of the SBS and the VBS
     avg_loss = np.inf # the average loss value across the given dataset
-    accuracy = 0 # classification accuracy 
+    accuracy = 0 # classification accuracy
     avg_cost = np.inf # the average cost of the predicted algorithms on the given dataset
     sbs_vbs_gap = np.inf # the SBS-VBS gap of your model on the given dataset
     sbs_avg_cost = np.inf # the average cost of the SBS on the given dataset 
