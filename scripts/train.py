@@ -1,6 +1,7 @@
 import argparse
 from nnregressor import NNRegressor
-from nnclassifier import NNClassifier
+from nnclassifierbasic import NNClassifierBasic
+from nnclassifieradvanced import NNClassifierAdvanced
 
 X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
@@ -23,12 +24,12 @@ def main():
         net.main()
     # Part 2 (basic)
     elif args.model_type == "classification_nn":
-        net = NNClassifier(args.data, args.save)
+        net = NNClassifierBasic(args.data, args.save)
         net.main()
-    # # Part 2 (advanced)
-    # elif args.model_type == "classification_nn_cost":
-    #     net = NNClassifier(args.data, args.save)
-    #     net.main()
+    # Part 2 (advanced)
+    elif args.model_type == "classification_nn_cost":
+        net = NNClassifierAdvanced(args.data, args.save)
+        net.main()
 
 
 if __name__ == "__main__":

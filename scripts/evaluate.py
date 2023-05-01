@@ -2,7 +2,8 @@ import argparse
 import numpy as np
 import torch
 from nnregressor import NNRegressor
-from nnclassifier import NNClassifier
+from nnclassifierbasic import NNClassifierBasic
+from nnclassifieradvanced import NNClassifierAdvanced
 
 X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
@@ -37,20 +38,20 @@ def main():
         vbs_avg_cost = result["vbs_avg_cost"]
     # Part 2 (basic)
     elif args.model == "models/part2_basic.pt":
-        model = NNClassifier(args.data, "")
+        model = NNClassifierBasic(args.data, "")
         model.load_state_dict(torch.load(args.model))
         result = model.test()
         accuracy = result["accuracy"]
         avg_cost = result["avg_cost"]
         avg_loss = result["avg_loss"]
     # Part 2 (advanced)
-    # elif args.model == "models/part2_advanced.pt":
-    #     model = NNClassifier(args.data, "")
-    #     model.load_state_dict(torch.load(args.model))
-    #     model.eval()
-    #     results = model.test_net()
-    #     avg_loss = results["avg_loss"]
-    #     accuracy = results["avg_acc"]
+    elif args.model == "models/part2_advanced.pt":
+        model = NNClassifierAdvanced(args.data, "")
+        model.load_state_dict(torch.load(args.model))
+        result = model.test()
+        accuracy = result["accuracy"]
+        avg_cost = result["avg_cost"]
+        avg_loss = result["avg_loss"]
 
     # print results
     print(f"\nFinal results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")

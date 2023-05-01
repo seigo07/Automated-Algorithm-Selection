@@ -10,10 +10,10 @@ HIDDEN_SIZE = 100
 BATCH_SIZE = 32
 
 
-class NNClassifier(torch.nn.Module):
+class NNClassifierAdvanced(torch.nn.Module):
 
     def __init__(self, data, save):
-        super(NNClassifier, self).__init__()
+        super(NNClassifierAdvanced, self).__init__()
         self.data = data
         self.save = save
         dataset, input_size, output_size = self.load_data()
