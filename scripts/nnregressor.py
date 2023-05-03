@@ -18,9 +18,13 @@ class NNRegressor(torch.nn.Module):
         self.save = save
         dataset, input_size, output_size = self.load_data()
         self.train_dataset, self.val_dataset, self.train_loader, self.val_loader = self.split_data(dataset)
-        self.fc1 = nn.Linear(input_size, HIDDEN_SIZE)
-        self.fc2 = nn.Linear(HIDDEN_SIZE, HIDDEN_SIZE)
-        self.fc3 = nn.Linear(HIDDEN_SIZE, output_size)
+        self.net = nn.Sequential(
+            nn.Linear(input_size, HIDDEN_SIZE),
+            nn.ReLU(),
+            nn.Linear(HIDDEN_SIZE, HIDDEN_SIZE),
+            nn.ReLU(),
+            nn.Linear(HIDDEN_SIZE, output_size)
+        )
 
     def main(self):
         self.train_net()
@@ -28,10 +32,8 @@ class NNRegressor(torch.nn.Module):
         torch.save(self.state_dict(), self.save)
 
     def forward(self, x):
-        x = self.fc1(x)
-        x = F.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
+        logits = self.net(x)
+        return logits
 
     def lossfn(self, y_pred, y):
         return F.mse_loss(y_pred, y)
@@ -41,10 +43,6 @@ class NNRegressor(torch.nn.Module):
         y_data = np.array(np.loadtxt(self.data + Y_FILE))
         x = F.normalize(torch.from_numpy(x_data).float(), p=1.0, dim=1)
         y = F.normalize(torch.from_numpy(y_data).float(), p=1.0, dim=1)
-        # target = torch.from_numpy(y_data).float()
-        # mean = torch.mean(target)
-        # std = torch.std(target)
-        # y = (target - mean) / std
         dataset = torch.utils.data.TensorDataset(x, y)
         return dataset, x_data.shape[1], y_data.shape[1]
 
@@ -84,10 +82,10 @@ class NNRegressor(torch.nn.Module):
                 total_cost += sum(avg_y_pred) / len(avg_y_pred)
                 mse_loss = self.lossfn(y_pred, y)
                 total_loss += mse_loss.item() * len(x)
-            avg_cost = total_cost / len(self.val_dataset)
-            avg_loss = total_loss / len(self.val_dataset)
-            sbs_avg_cost = total_sbs / len(self.val_dataset)
-            vbs_avg_cost = total_vbs / len(self.val_dataset)
+            # avg_cost = total_cost / len(self.val_dataset)
+            # avg_loss = total_loss / len(self.val_dataset)
+            # sbs_avg_cost = total_sbs / len(self.val_dataset)
+            # vbs_avg_cost = total_vbs / len(self.val_dataset)
 
     def test(self):
         dataset, _, _ = self.load_data()

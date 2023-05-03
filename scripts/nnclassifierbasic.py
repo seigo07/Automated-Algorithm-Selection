@@ -18,9 +18,13 @@ class NNClassifierBasic(torch.nn.Module):
         self.save = save
         dataset, input_size, output_size = self.load_data()
         self.train_dataset, self.val_dataset, self.train_loader, self.val_loader = self.split_data(dataset)
-        self.fc1 = nn.Linear(input_size, HIDDEN_SIZE)
-        self.fc2 = nn.Linear(HIDDEN_SIZE, HIDDEN_SIZE)
-        self.fc3 = nn.Linear(HIDDEN_SIZE, output_size)
+        self.net = nn.Sequential(
+            nn.Linear(input_size, HIDDEN_SIZE),
+            nn.ReLU(),
+            nn.Linear(HIDDEN_SIZE, HIDDEN_SIZE),
+            nn.Softmax(),
+            nn.Linear(HIDDEN_SIZE, output_size)
+        )
 
     def main(self):
         self.train_net()
@@ -28,10 +32,8 @@ class NNClassifierBasic(torch.nn.Module):
         torch.save(self.state_dict(), self.save)
 
     def forward(self, x):
-        x = self.fc1(x)
-        x = F.relu(self.fc2(x))
-        x = F.softmax(self.fc3(x))
-        return x
+        logits = self.net(x)
+        return logits
 
     def lossfn(self, y_pred, y):
         return F.cross_entropy(y_pred, y)
