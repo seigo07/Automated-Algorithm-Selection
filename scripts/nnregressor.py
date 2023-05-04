@@ -7,7 +7,7 @@ X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
 HIDDEN_SIZE = 100
-BATCH_SIZE = 10
+BATCH_SIZE = 64
 
 
 class NNRegressor(torch.nn.Module):
@@ -36,7 +36,7 @@ class NNRegressor(torch.nn.Module):
         return logits
 
     def lossfn(self, y_pred, y):
-        return F.mse_loss(y_pred, y)
+        return F.mse_loss(y_pred, y, reduction="mean")
 
     def load_data(self):
         x_data = np.array(np.loadtxt(self.data + X_FILE))
@@ -56,10 +56,10 @@ class NNRegressor(torch.nn.Module):
         return train_dataset, val_dataset, train_loader, val_loader
 
     def train_net(self):
-        num_epochs = 100
+        max_epochs = 100
         lr = 1e-3
         optimizer = torch.optim.Adam(self.parameters(), lr)
-        for epoch in range(num_epochs):
+        for epoch in range(max_epochs):
             for x, y in self.train_loader:
                 y_pred = self(x)
                 loss = self.lossfn(y_pred, y)
@@ -105,10 +105,10 @@ class NNRegressor(torch.nn.Module):
                 y_pred = self(x)
                 avg_y_pred = sum(y_pred) / len(y_pred)
                 total_cost += sum(avg_y_pred) / len(avg_y_pred)
-                mse_loss = self.lossfn(y_pred, y)
-                total_loss += mse_loss.item() * len(x)
+                loss = self.lossfn(y_pred, y)
+                total_loss += loss
             avg_cost = total_cost / len(dataset)
-            avg_loss = total_loss / len(dataset)
+            avg_loss = total_loss / len(data_loader)
             sbs_avg_cost = total_sbs / len(dataset)
             vbs_avg_cost = total_vbs / len(dataset)
             result = {
