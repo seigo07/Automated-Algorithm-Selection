@@ -36,6 +36,7 @@ def main():
         avg_loss = result["avg_loss"]
         sbs_avg_cost = result["sbs_avg_cost"]
         vbs_avg_cost = result["vbs_avg_cost"]
+        sbs_vbs_gap = result["sbs_vbs_gap"]
     # Part 2 (basic)
     elif args.model == "models/part2_basic.pt":
         model = NNClassifierBasic(args.data, "")

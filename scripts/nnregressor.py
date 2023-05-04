@@ -41,7 +41,8 @@ class NNRegressor(torch.nn.Module):
     def load_data(self):
         x_data = np.array(np.loadtxt(self.data + X_FILE))
         y_data = np.array(np.loadtxt(self.data + Y_FILE))
-        x = F.normalize(torch.from_numpy(x_data).float(), p=1.0, dim=1)
+        # x = F.normalize(torch.from_numpy(x_data).float(), p=1.0, dim=1)
+        x = torch.from_numpy(x_data).float()
         y = torch.from_numpy(y_data).float()
         dataset = torch.utils.data.TensorDataset(x, y)
         return dataset, x_data.shape[1], y_data.shape[1]
@@ -111,10 +112,12 @@ class NNRegressor(torch.nn.Module):
             avg_loss = total_loss / len(data_loader)
             sbs_avg_cost = total_sbs / len(dataset)
             vbs_avg_cost = total_vbs / len(dataset)
+            sbs_vbs_gap = (avg_cost - vbs_avg_cost) / (sbs_avg_cost - vbs_avg_cost)
             result = {
                 "avg_cost": avg_cost,
                 "avg_loss": avg_loss,
                 "sbs_avg_cost": sbs_avg_cost,
-                "vbs_avg_cost": vbs_avg_cost
+                "vbs_avg_cost": vbs_avg_cost,
+                "sbs_vbs_gap": sbs_vbs_gap
             }
             return result
