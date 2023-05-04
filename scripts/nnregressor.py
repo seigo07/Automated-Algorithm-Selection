@@ -42,7 +42,7 @@ class NNRegressor(torch.nn.Module):
         x_data = np.array(np.loadtxt(self.data + X_FILE))
         y_data = np.array(np.loadtxt(self.data + Y_FILE))
         x = F.normalize(torch.from_numpy(x_data).float(), p=1.0, dim=1)
-        y = F.normalize(torch.from_numpy(y_data).float(), p=1.0, dim=1)
+        y = torch.from_numpy(y_data).float()
         dataset = torch.utils.data.TensorDataset(x, y)
         return dataset, x_data.shape[1], y_data.shape[1]
 
@@ -56,9 +56,9 @@ class NNRegressor(torch.nn.Module):
         return train_dataset, val_dataset, train_loader, val_loader
 
     def train_net(self):
-        num_epochs = 20
-        lr = 0.01
-        optimizer = torch.optim.SGD(self.parameters(), lr)
+        num_epochs = 100
+        lr = 1e-3
+        optimizer = torch.optim.Adam(self.parameters(), lr)
         for epoch in range(num_epochs):
             for x, y in self.train_loader:
                 y_pred = self(x)
