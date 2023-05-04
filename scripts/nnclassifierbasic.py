@@ -85,8 +85,9 @@ class NNClassifierBasic(torch.nn.Module):
                 total_cost += sum(avg_y_pred) / len(avg_y_pred)
                 loss = self.lossfn(y_pred, y)
                 total_loss += loss
+                _, predicted = torch.max(y_pred.data, 0)
                 total += y.size(0)
-                correct += (y_pred == y).sum().item()
+                correct += (predicted == y).sum().item()
             accuracy = 100 * correct / total
             avg_cost = total_cost / len(self.val_dataset)
             avg_loss = total_loss / len(self.val_loader)
@@ -117,8 +118,9 @@ class NNClassifierBasic(torch.nn.Module):
                 total_cost += sum(avg_y_pred) / len(avg_y_pred)
                 loss = self.lossfn(y_pred, y)
                 total_loss += loss
+                _, predicted = torch.max(y_pred.data, 0)
                 total += y.size(0)
-                correct += (y_pred == y).sum().item()
+                correct += (predicted == y).sum().item()
             accuracy = 100 * correct / total
             avg_cost = total_cost / len(dataset)
             avg_loss = total_loss / len(data_loader)
