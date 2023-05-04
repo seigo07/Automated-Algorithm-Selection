@@ -45,6 +45,9 @@ def main():
         accuracy = result["accuracy"]
         avg_cost = result["avg_cost"]
         avg_loss = result["avg_loss"]
+        sbs_avg_cost = result["sbs_avg_cost"]
+        vbs_avg_cost = result["vbs_avg_cost"]
+        sbs_vbs_gap = result["sbs_vbs_gap"]
     # Part 2 (advanced)
     elif args.model == "models/part2_advanced.pt":
         model = NNClassifierAdvanced(args.data, "")
@@ -53,6 +56,9 @@ def main():
         accuracy = result["accuracy"]
         avg_cost = result["avg_cost"]
         avg_loss = result["avg_loss"]
+        sbs_avg_cost = result["sbs_avg_cost"]
+        vbs_avg_cost = result["vbs_avg_cost"]
+        sbs_vbs_gap = result["sbs_vbs_gap"]
 
     # print results
     print(f"\nFinal results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")

@@ -7,7 +7,7 @@ X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
 HIDDEN_SIZE = 100
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 
 
 class NNClassifierAdvanced(torch.nn.Module):
@@ -36,14 +36,13 @@ class NNClassifierAdvanced(torch.nn.Module):
         return logits
 
     def lossfn(self, y_pred, y):
-        return F.cross_entropy(y_pred, y)
+        return F.cross_entropy(y_pred, y, reduction="mean")
 
     def load_data(self):
         x_data = np.array(np.loadtxt(self.data + X_FILE))
         y_data = np.array(np.loadtxt(self.data + Y_FILE))
         # x = F.normalize(torch.from_numpy(x_data).float(), p=1.0, dim=1)
-        # y = F.normalize(torch.from_numpy(y_data).float(), p=1.0, dim=1)
-        x = torch.from_numpy(np.round(x_data)).float()
+        x = torch.from_numpy(x_data).float()
         y = torch.from_numpy(np.round(np.log10(y_data))).float()
         dataset = torch.utils.data.TensorDataset(x, y)
         return dataset, x_data.shape[1], y_data.shape[1]
@@ -58,9 +57,9 @@ class NNClassifierAdvanced(torch.nn.Module):
         return train_dataset, val_dataset, train_loader, val_loader
 
     def train_net(self):
-        num_epochs = 20
-        lr = 0.01
-        optimizer = torch.optim.SGD(self.parameters(), lr)
+        num_epochs = 100
+        lr = 1e-3
+        optimizer = torch.optim.Adam(self.parameters(), lr)
         for epoch in range(num_epochs):
             for x, y in self.train_loader:
                 y_pred = self(x)
@@ -71,34 +70,30 @@ class NNClassifierAdvanced(torch.nn.Module):
                 # print('( Train ) Epoch : %.2d, Loss : %f' % (epoch + 1, loss))
 
     def validation_net(self):
-        sbs_avg_cost = float('inf')
-        sbs = None
-        vbs_avg_cost = float('inf')
-        vbs = None
         with torch.no_grad():
             total_cost = 0
             total_loss = 0
+            total_sbs = 0
+            total_vbs = 0
+            correct = 0
+            total = 0
             for x, y in self.val_loader:
+                total_sbs += min(sum(y) / len(y))
+                total_vbs += min([min(m) for m in y])
                 y_pred = self(x)
-                total_cost += torch.abs(y_pred - y).sum().item()
-                mse_loss = self.lossfn(y_pred, y)
-                total_loss += mse_loss.item() * len(x)
+                avg_y_pred = sum(y_pred) / len(y_pred)
+                total_cost += sum(avg_y_pred) / len(avg_y_pred)
+                loss = self.lossfn(y_pred, y)
+                total_loss += loss
+                total += y.size(0)
+                correct += (y_pred == y).sum().item()
+            accuracy = 100 * correct / total
             avg_cost = total_cost / len(self.val_dataset)
-            avg_loss = total_loss / len(self.val_dataset)
-
-            # If this is SBS so far, save it
-            if avg_cost < sbs_avg_cost:
-                sbs_avg_cost = avg_cost
-                sbs = self.state_dict()
-            # If this is VBS so far, save it
-            if avg_loss < vbs_avg_cost:
-                vbs_avg_cost = avg_loss
-                vbs = self.state_dict()
-
-        print("sbs_avg_cost:", sbs_avg_cost)
-        # print("sbs:", sbs)
-        print("vbs_avg_cost:", vbs_avg_cost)
-        # print("vbs:", vbs)
+            avg_loss = total_loss / len(self.val_loader)
+            sbs_avg_cost = total_sbs / len(self.val_dataset)
+            vbs_avg_cost = total_vbs / len(self.val_dataset)
+            sbs_vbs_gap = (avg_cost - vbs_avg_cost) / (sbs_avg_cost - vbs_avg_cost)
+            print(f"\nval results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")
 
     def test(self):
         dataset, _, _ = self.load_data()
@@ -110,18 +105,32 @@ class NNClassifierAdvanced(torch.nn.Module):
         with torch.no_grad():
             total_cost = 0
             total_loss = 0
+            total_sbs = 0
+            total_vbs = 0
             correct = 0
             total = 0
             for x, y in data_loader:
+                total_sbs += min(sum(y) / len(y))
+                total_vbs += min([min(m) for m in y])
                 y_pred = self(x)
-                total_cost += torch.abs(y_pred - y).sum().item()
-                mse_loss = self.lossfn(y_pred, y)
-                total_loss += mse_loss.item() * len(x)
-                _, predicted = torch.max(y_pred.data, 0)
+                avg_y_pred = sum(y_pred) / len(y_pred)
+                total_cost += sum(avg_y_pred) / len(avg_y_pred)
+                loss = self.lossfn(y_pred, y)
+                total_loss += loss
                 total += y.size(0)
-                correct += (predicted == y).sum().item()
-        accuracy = 100 * correct / total
-        avg_cost = total_cost / len(dataset)
-        avg_loss = total_loss / len(dataset)
-        result = {"accuracy": accuracy, "avg_cost": avg_cost, "avg_loss": avg_loss}
-        return result
+                correct += (y_pred == y).sum().item()
+            accuracy = 100 * correct / total
+            avg_cost = total_cost / len(dataset)
+            avg_loss = total_loss / len(data_loader)
+            sbs_avg_cost = total_sbs / len(dataset)
+            vbs_avg_cost = total_vbs / len(dataset)
+            sbs_vbs_gap = (avg_cost - vbs_avg_cost) / (sbs_avg_cost - vbs_avg_cost)
+            result = {
+                "accuracy": accuracy,
+                "avg_cost": avg_cost,
+                "avg_loss": avg_loss,
+                "sbs_avg_cost": sbs_avg_cost,
+                "vbs_avg_cost": vbs_avg_cost,
+                "sbs_vbs_gap": sbs_vbs_gap
+            }
+            return result
