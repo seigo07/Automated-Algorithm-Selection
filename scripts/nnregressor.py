@@ -104,17 +104,17 @@ class NNRegressor(torch.nn.Module):
             total_sbs = 0
             total_vbs = 0
             for x, y in data_loader:
-                total_sbs += min(sum(y) / len(y))
+                total_sbs += sum(y) / len(y)
                 total_vbs += min([min(m) for m in y])
                 y_pred = self(x)
-                avg_y_pred = sum(y_pred) / len(y_pred)
-                total_cost += sum(avg_y_pred) / len(avg_y_pred)
+                lowest_y_pred = y_pred.min()
+                total_cost += lowest_y_pred
                 loss = self.lossfn(y_pred, y)
                 total_loss += loss
-            avg_cost = total_cost / len(dataset)
+            avg_cost = total_cost / len(data_loader)
             avg_loss = total_loss / len(data_loader)
-            sbs_avg_cost = total_sbs / len(dataset)
-            vbs_avg_cost = total_vbs / len(dataset)
+            sbs_avg_cost = min(total_sbs / len(data_loader))
+            vbs_avg_cost = total_vbs / len(data_loader)
             sbs_vbs_gap = (avg_cost - vbs_avg_cost) / (sbs_avg_cost - vbs_avg_cost)
             result = {
                 "avg_cost": avg_cost,
