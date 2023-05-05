@@ -44,6 +44,14 @@ class NNClassifierBasic(torch.nn.Module):
         # x = F.normalize(torch.from_numpy(x_data).float(), p=1.0, dim=1)
         x = torch.from_numpy(x_data).float()
         y = torch.from_numpy(np.round(np.log10(y_data))).float()
+
+        # y = torch.from_numpy(y_data).float()
+        # num_categories = [int(torch.max(y[:, i])) + 1 for i in range(y.shape[1])]
+        # one_hot_labels = torch.cat(
+        #     [torch.nn.functional.one_hot(y[:, i].to(torch.int64), num_categories[i]).float() for i in
+        #      range(y.shape[1])], dim=1)
+        # print("one_hot_labels:", one_hot_labels)
+
         dataset = torch.utils.data.TensorDataset(x, y)
         return dataset, x_data.shape[1], y_data.shape[1]
 
