@@ -16,14 +16,16 @@ class NNRegressor(torch.nn.Module):
         super(NNRegressor, self).__init__()
         self.data = data
         self.save = save
-        dataset, input_size, output_size = self.load_data()
+        x = np.loadtxt(self.data + X_FILE)
+        y = np.loadtxt(self.data + Y_FILE)
+        dataset = self.load_data(x, y)
         self.train_dataset, self.val_dataset, self.train_loader, self.val_loader = self.split_data(dataset)
         self.net = nn.Sequential(
-            nn.Linear(input_size, HIDDEN_SIZE),
-            nn.Sigmoid(),
+            nn.Linear(x.shape[1], HIDDEN_SIZE),
+            nn.ReLU(),
             nn.Linear(HIDDEN_SIZE, HIDDEN_SIZE),
-            nn.Sigmoid(),
-            nn.Linear(HIDDEN_SIZE, output_size)
+            nn.ReLU(),
+            nn.Linear(HIDDEN_SIZE, y.shape[1])
         )
 
     def main(self):
@@ -36,16 +38,14 @@ class NNRegressor(torch.nn.Module):
         return logits
 
     def lossfn(self, y_pred, y):
-        return F.mse_loss(y_pred, y, reduction="mean")
+        return F.mse_loss(y_pred, y)
 
-    def load_data(self):
-        x_data = np.array(np.loadtxt(self.data + X_FILE))
-        y_data = np.array(np.loadtxt(self.data + Y_FILE))
-        x = F.normalize(torch.from_numpy(x_data).float(), p=1.0, dim=1)
-        # x = torch.from_numpy(x_data).float()
-        y = torch.from_numpy(y_data).float()
+    def load_data(self, x, y):
+        # x = F.normalize(torch.from_numpy(x).float(), p=1.0, dim=1)
+        x = torch.tensor(x).float()
+        y = torch.tensor(y).float()
         dataset = torch.utils.data.TensorDataset(x, y)
-        return dataset, x_data.shape[1], y_data.shape[1]
+        return dataset
 
     def split_data(self, dataset):
         n_train = int(len(dataset) * 0.8)
@@ -92,12 +92,14 @@ class NNRegressor(torch.nn.Module):
             print(f"\nval results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")
 
     def test(self):
-        dataset, _, _ = self.load_data()
+        x = np.loadtxt(self.data + X_FILE)
+        y = np.loadtxt(self.data + Y_FILE)
+        dataset = self.load_data(x, y)
         test_loader = torch.utils.data.DataLoader(dataset, BATCH_SIZE, shuffle=True)
-        result = self.test_net(dataset, test_loader)
+        result = self.test_net(test_loader)
         return result
 
-    def test_net(self, dataset, data_loader):
+    def test_net(self, data_loader):
         with torch.no_grad():
             total_cost = 0
             total_loss = 0
