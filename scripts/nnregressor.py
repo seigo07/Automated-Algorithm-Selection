@@ -6,7 +6,7 @@ import torch.nn.functional as F
 X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
-HIDDEN_SIZE = 100
+HIDDEN_SIZE = 50
 BATCH_SIZE = 64
 
 
@@ -20,9 +20,9 @@ class NNRegressor(torch.nn.Module):
         self.train_dataset, self.val_dataset, self.train_loader, self.val_loader = self.split_data(dataset)
         self.net = nn.Sequential(
             nn.Linear(input_size, HIDDEN_SIZE),
-            nn.ReLU(),
+            nn.Sigmoid(),
             nn.Linear(HIDDEN_SIZE, HIDDEN_SIZE),
-            nn.ReLU(),
+            nn.Sigmoid(),
             nn.Linear(HIDDEN_SIZE, output_size)
         )
 
@@ -41,8 +41,8 @@ class NNRegressor(torch.nn.Module):
     def load_data(self):
         x_data = np.array(np.loadtxt(self.data + X_FILE))
         y_data = np.array(np.loadtxt(self.data + Y_FILE))
-        # x = F.normalize(torch.from_numpy(x_data).float(), p=1.0, dim=1)
-        x = torch.from_numpy(x_data).float()
+        x = F.normalize(torch.from_numpy(x_data).float(), p=1.0, dim=1)
+        # x = torch.from_numpy(x_data).float()
         y = torch.from_numpy(y_data).float()
         dataset = torch.utils.data.TensorDataset(x, y)
         return dataset, x_data.shape[1], y_data.shape[1]
@@ -58,7 +58,7 @@ class NNRegressor(torch.nn.Module):
 
     def train_net(self):
         max_epochs = 100
-        lr = 1e-3
+        lr = 1e-4
         optimizer = torch.optim.Adam(self.parameters(), lr)
         for epoch in range(max_epochs):
             for x, y in self.train_loader:
