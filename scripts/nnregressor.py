@@ -58,7 +58,7 @@ class NNRegressor(torch.nn.Module):
 
     def train_net(self):
         max_epochs = 100
-        lr = 1e-4
+        lr = 1e-3
         optimizer = torch.optim.Adam(self.parameters(), lr)
         for epoch in range(max_epochs):
             for x, y in self.train_loader:
