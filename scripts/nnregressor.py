@@ -76,17 +76,17 @@ class NNRegressor(torch.nn.Module):
             total_sbs = 0
             total_vbs = 0
             for x, y in self.val_loader:
-                total_sbs += min(sum(y) / len(y))
+                total_sbs += sum(y) / len(y)
                 total_vbs += min([min(m) for m in y])
                 y_pred = self(x)
-                avg_y_pred = sum(y_pred) / len(y_pred)
-                total_cost += sum(avg_y_pred) / len(avg_y_pred)
+                lowest_y_pred = min(sum(y_pred) / len(y_pred))
+                total_cost += lowest_y_pred
                 loss = self.lossfn(y_pred, y)
                 total_loss += loss
-            avg_cost = total_cost / len(self.val_dataset)
+            avg_cost = total_cost / len(self.val_loader)
             avg_loss = total_loss / len(self.val_loader)
-            sbs_avg_cost = total_sbs / len(self.val_dataset)
-            vbs_avg_cost = total_vbs / len(self.val_dataset)
+            sbs_avg_cost = min(total_sbs / len(self.val_loader))
+            vbs_avg_cost = total_vbs / len(self.val_loader)
             sbs_vbs_gap = (avg_cost - vbs_avg_cost) / (sbs_avg_cost - vbs_avg_cost)
             accuracy = 0
             print(f"\nval results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")
@@ -107,7 +107,7 @@ class NNRegressor(torch.nn.Module):
                 total_sbs += sum(y) / len(y)
                 total_vbs += min([min(m) for m in y])
                 y_pred = self(x)
-                lowest_y_pred = y_pred.min()
+                lowest_y_pred = min(sum(y_pred) / len(y_pred))
                 total_cost += lowest_y_pred
                 loss = self.lossfn(y_pred, y)
                 total_loss += loss
