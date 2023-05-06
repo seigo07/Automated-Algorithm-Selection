@@ -88,11 +88,9 @@ class NNRegressor(torch.nn.Module):
                 total_cost += lowest_y_pred
                 loss = self.lossfn(y_pred, y)
                 total_loss += loss
-
                 _, predicted = torch.max(y_pred.data, 0)
                 total += y.size(0)
                 correct += (predicted == y).sum().item() / len(y)
-
             accuracy = 100 * correct / total
             avg_cost = total_cost / len(self.val_loader)
             avg_loss = total_loss / len(self.val_loader)
@@ -125,11 +123,9 @@ class NNRegressor(torch.nn.Module):
                 total_cost += lowest_y_pred
                 loss = self.lossfn(y_pred, y)
                 total_loss += loss
-
                 _, predicted = torch.max(y_pred.data, 0)
                 total += y.size(0)
                 correct += (predicted == y).sum().item() / len(y)
-
             accuracy = 100 * correct / total
             avg_cost = total_cost / len(data_loader)
             avg_loss = total_loss / len(data_loader)

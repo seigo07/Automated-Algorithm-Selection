@@ -16,14 +16,16 @@ class NNClassifierBasic(torch.nn.Module):
         super(NNClassifierBasic, self).__init__()
         self.data = data
         self.save = save
-        dataset, input_size, output_size = self.load_data()
+        x = np.loadtxt(self.data + X_FILE)
+        y = np.loadtxt(self.data + Y_FILE)
+        dataset = self.load_data(x, y)
         self.train_dataset, self.val_dataset, self.train_loader, self.val_loader = self.split_data(dataset)
         self.net = nn.Sequential(
-            nn.Linear(input_size, HIDDEN_SIZE),
+            nn.Linear(x.shape[1], HIDDEN_SIZE),
             nn.ReLU(),
             nn.Linear(HIDDEN_SIZE, HIDDEN_SIZE),
             nn.Softmax(),
-            nn.Linear(HIDDEN_SIZE, output_size)
+            nn.Linear(HIDDEN_SIZE, y.shape[1])
         )
 
     def main(self):
@@ -38,12 +40,12 @@ class NNClassifierBasic(torch.nn.Module):
     def lossfn(self, y_pred, y):
         return F.cross_entropy(y_pred, y, reduction="mean")
 
-    def load_data(self):
-        x_data = np.array(np.loadtxt(self.data + X_FILE))
-        y_data = np.array(np.loadtxt(self.data + Y_FILE))
-        # x = F.normalize(torch.from_numpy(x_data).float(), p=1.0, dim=1)
-        x = torch.from_numpy(x_data).float()
-        y = torch.from_numpy(np.round(np.log10(y_data))).float()
+    def load_data(self, x, y):
+        # x = F.normalize(torch.from_numpy(x).float())
+        # y = F.normalize(torch.from_numpy(y).float())
+        x = torch.tensor(x).float()
+        # y = F.normalize(torch.from_numpy(y).float())
+        y = torch.tensor(np.round(np.log10(y))).float()
 
         # y = torch.from_numpy(y_data).float()
         # num_categories = [int(torch.max(y[:, i])) + 1 for i in range(y.shape[1])]
@@ -53,7 +55,7 @@ class NNClassifierBasic(torch.nn.Module):
         # print("one_hot_labels:", one_hot_labels)
 
         dataset = torch.utils.data.TensorDataset(x, y)
-        return dataset, x_data.shape[1], y_data.shape[1]
+        return dataset
 
     def split_data(self, dataset):
         n_train = int(len(dataset) * 0.8)
@@ -86,7 +88,7 @@ class NNClassifierBasic(torch.nn.Module):
             correct = 0
             total = 0
             for x, y in self.val_loader:
-                total_sbs += min(sum(y) / len(y))
+                total_sbs += sum(y) / len(y)
                 total_vbs += min([min(m) for m in y])
                 y_pred = self(x)
                 avg_y_pred = sum(y_pred) / len(y_pred)
@@ -97,20 +99,22 @@ class NNClassifierBasic(torch.nn.Module):
                 total += y.size(0)
                 correct += (predicted == y).sum().item()
             accuracy = 100 * correct / total
-            avg_cost = total_cost / len(self.val_dataset)
+            avg_cost = total_cost / len(self.val_loader)
             avg_loss = total_loss / len(self.val_loader)
-            sbs_avg_cost = total_sbs / len(self.val_dataset)
-            vbs_avg_cost = total_vbs / len(self.val_dataset)
+            sbs_avg_cost = min(total_sbs / len(self.val_loader))
+            vbs_avg_cost = total_vbs / len(self.val_loader)
             sbs_vbs_gap = (avg_cost - vbs_avg_cost) / (sbs_avg_cost - vbs_avg_cost)
             print(f"\nval results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")
 
     def test(self):
-        dataset, _, _ = self.load_data()
+        x = np.loadtxt(self.data + X_FILE)
+        y = np.loadtxt(self.data + Y_FILE)
+        dataset = self.load_data(x, y)
         test_loader = torch.utils.data.DataLoader(dataset, BATCH_SIZE, shuffle=True)
-        result = self.test_net(dataset, test_loader)
+        result = self.test_net(test_loader)
         return result
 
-    def test_net(self, dataset, data_loader):
+    def test_net(self, data_loader):
         with torch.no_grad():
             total_cost = 0
             total_loss = 0
@@ -119,7 +123,7 @@ class NNClassifierBasic(torch.nn.Module):
             correct = 0
             total = 0
             for x, y in data_loader:
-                total_sbs += min(sum(y) / len(y))
+                total_sbs += sum(y) / len(y)
                 total_vbs += min([min(m) for m in y])
                 y_pred = self(x)
                 avg_y_pred = sum(y_pred) / len(y_pred)
@@ -130,10 +134,10 @@ class NNClassifierBasic(torch.nn.Module):
                 total += y.size(0)
                 correct += (predicted == y).sum().item()
             accuracy = 100 * correct / total
-            avg_cost = total_cost / len(dataset)
+            avg_cost = total_cost / len(data_loader)
             avg_loss = total_loss / len(data_loader)
-            sbs_avg_cost = total_sbs / len(dataset)
-            vbs_avg_cost = total_vbs / len(dataset)
+            sbs_avg_cost = min(total_sbs / len(data_loader))
+            vbs_avg_cost = total_vbs / len(data_loader)
             sbs_vbs_gap = (avg_cost - vbs_avg_cost) / (sbs_avg_cost - vbs_avg_cost)
             result = {
                 "accuracy": accuracy,
