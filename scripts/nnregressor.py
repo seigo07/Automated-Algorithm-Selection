@@ -42,11 +42,11 @@ class NNRegressor(torch.nn.Module):
 
     def load_data(self, x, y):
         # x = torch.tensor(x).float()
-        # y = torch.tensor(y).float()
-        x = F.normalize(torch.from_numpy(x).float(), p=155, dim=1)
-        # y = F.normalize(torch.from_numpy(y).float(), p=1.0, dim=1)
+        y = torch.tensor(y).float()
+        x = F.normalize(torch.from_numpy(x).float())
+        # y = F.normalize(torch.from_numpy(y).float())
         # x = torch.tensor(np.round(np.log10(x))).float()
-        y = torch.tensor(np.round(np.log10(y))).float()
+        # y = torch.tensor(np.round(np.log10(y))).float()
         dataset = torch.utils.data.TensorDataset(x, y)
         return dataset
 
@@ -91,7 +91,7 @@ class NNRegressor(torch.nn.Module):
 
                 _, predicted = torch.max(y_pred.data, 0)
                 total += y.size(0)
-                correct += (predicted == y).sum().item()
+                correct += (predicted == y).sum().item() / len(y)
 
             accuracy = 100 * correct / total
             avg_cost = total_cost / len(self.val_loader)
@@ -128,7 +128,7 @@ class NNRegressor(torch.nn.Module):
 
                 _, predicted = torch.max(y_pred.data, 0)
                 total += y.size(0)
-                correct += (predicted == y).sum().item()
+                correct += (predicted == y).sum().item() / len(y)
 
             accuracy = 100 * correct / total
             avg_cost = total_cost / len(data_loader)
