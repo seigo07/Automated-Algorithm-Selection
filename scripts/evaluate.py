@@ -32,6 +32,7 @@ def main():
         model = NNRegressor(args.data, "")
         model.load_state_dict(torch.load(args.model))
         result = model.test()
+        accuracy = result["accuracy"]
         avg_cost = result["avg_cost"]
         avg_loss = result["avg_loss"]
         sbs_avg_cost = result["sbs_avg_cost"]
