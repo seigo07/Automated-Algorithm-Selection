@@ -4,6 +4,7 @@ import torch
 from nnregressor import NNRegressor
 from nnclassifierbasic import NNClassifierBasic
 from nnclassifieradvanced import NNClassifierAdvanced
+from nnbinaryclassifier import NNBinaryClassifier
 
 X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
@@ -52,6 +53,17 @@ def main():
     # Part 2 (advanced)
     elif args.model == "models/part2_advanced.pt":
         model = NNClassifierAdvanced(args.data, "")
+        model.load_state_dict(torch.load(args.model))
+        result = model.test()
+        accuracy = result["accuracy"]
+        avg_cost = result["avg_cost"]
+        avg_loss = result["avg_loss"]
+        sbs_avg_cost = result["sbs_avg_cost"]
+        vbs_avg_cost = result["vbs_avg_cost"]
+        sbs_vbs_gap = result["sbs_vbs_gap"]
+    # Part 3 (extension 1)
+    elif args.model == "models/part3_1.pt":
+        model = NNBinaryClassifier(args.data, "")
         model.load_state_dict(torch.load(args.model))
         result = model.test()
         accuracy = result["accuracy"]

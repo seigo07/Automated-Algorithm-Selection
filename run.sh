@@ -30,9 +30,9 @@ echo ""
 
 # train a model for part 3 - extension 1 and evaluate it
 echo "#########   PART 3 (extension 1): pairwise cost-sensitive classification model ################"
-# YOUR CODE HERE: please add commands for each extension following the same template as above. 
-# REMEMBER TO PRINT OUT THE DESCRIPTION (those "echo ..." lines) before every pair of train and evaluate command).
-
+python scripts/train.py --model-type binary_classification_nn --data data/train/ --save models/part3_1.pt
+python scripts/evaluate.py --model models/part3_1 --data data/test/
+echo ""
 
 # deactivate Python virtual environment
 deactivate

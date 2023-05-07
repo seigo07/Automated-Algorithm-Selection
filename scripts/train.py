@@ -2,6 +2,7 @@ import argparse
 from nnregressor import NNRegressor
 from nnclassifierbasic import NNClassifierBasic
 from nnclassifieradvanced import NNClassifierAdvanced
+from nnbinaryclassifier import NNBinaryClassifier
 
 X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
@@ -20,16 +21,23 @@ def main():
     # YOUR CODE HERE
     # Part 1
     if args.model_type == "regresion_nn":
-        print("hoge")
+        print("Part 1")
         # net = NNRegressor(args.data, args.save)
         # net.main()
     # Part 2 (basic)
     elif args.model_type == "classification_nn":
-        net = NNClassifierBasic(args.data, args.save)
-        net.main()
+        print("Part 2 basic")
+        # net = NNClassifierBasic(args.data, args.save)
+        # net.main()
     # Part 2 (advanced)
     elif args.model_type == "classification_nn_cost":
-        net = NNClassifierAdvanced(args.data, args.save)
+        print("Part 2 advanced")
+        # net = NNClassifierAdvanced(args.data, args.save)
+        # net.main()
+    # Part 3 (extension 1)
+    elif args.model_type == "binary_classification_nn":
+        print("Part 3 extension 1")
+        net = NNBinaryClassifier(args.data, args.save)
         net.main()
 
 
