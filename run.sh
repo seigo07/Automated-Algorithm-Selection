@@ -34,5 +34,11 @@ python scripts/train.py --model-type binary_classification_nn --data data/train/
 python scripts/evaluate.py --model models/part3_1.pt --data data/test/
 echo ""
 
+# train a model for part 3 - extension 2 and evaluate it
+echo "#########   PART 3 (extension 2): random forest classification model ################"
+python scripts/train.py --model-type random_forest_classification --data data/train/ --save models/part3_2.pt
+python scripts/evaluate.py --model models/part3_2.pt --data data/test/
+echo ""
+
 # deactivate Python virtual environment
 deactivate
