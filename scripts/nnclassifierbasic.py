@@ -43,9 +43,9 @@ class NNClassifierBasic(torch.nn.Module):
         return F.cross_entropy(y_pred, y, reduction="mean")
 
     def load_data(self, x, y):
-        # x = F.normalize(torch.from_numpy(x).float())
-        # y = F.normalize(torch.from_numpy(y).float())
         x = torch.tensor(x).float()
+        # y = torch.tensor(y).float()
+        # x = F.normalize(torch.from_numpy(x).float())
         # y = F.normalize(torch.from_numpy(y).float())
         y = torch.tensor(np.round(np.log10(y))).float()
 
