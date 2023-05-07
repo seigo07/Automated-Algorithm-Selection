@@ -3,6 +3,7 @@ from nnregressor import NNRegressor
 from nnclassifierbasic import NNClassifierBasic
 from nnclassifieradvanced import NNClassifierAdvanced
 from nnbinaryclassifier import NNBinaryClassifier
+from randomforestclassifier import RandomForestClassifier
 
 X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
@@ -39,6 +40,11 @@ def main():
         print("Part 3 extension 1")
         # net = NNBinaryClassifier(args.data, args.save)
         # net.main()
+    # Part 3 (extension 2)
+    elif args.model_type == "binary_classification_nn":
+        print("Part 3 extension 2")
+        rf = RandomForestClassifier(args.data, args.save)
+        rf.main()
 
 
 if __name__ == "__main__":
