@@ -6,7 +6,7 @@ import torch.nn.functional as F
 X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
-HIDDEN_SIZE = 50
+HIDDEN_SIZE = 100
 BATCH_SIZE = 64
 
 
@@ -60,8 +60,8 @@ class NNRegressor(torch.nn.Module):
         return train_dataset, val_dataset, train_loader, val_loader
 
     def train_net(self):
-        max_epochs = 100
-        lr = 1e-5
+        max_epochs = 1000
+        lr = 1e-7
         optimizer = torch.optim.Adam(self.parameters(), lr)
         for epoch in range(max_epochs):
             for x, y in self.train_loader:
