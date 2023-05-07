@@ -37,8 +37,8 @@ def main():
     # Part 3 (extension 1)
     elif args.model_type == "binary_classification_nn":
         print("Part 3 extension 1")
-        net = NNBinaryClassifier(args.data, args.save)
-        net.main()
+        # net = NNBinaryClassifier(args.data, args.save)
+        # net.main()
 
 
 if __name__ == "__main__":

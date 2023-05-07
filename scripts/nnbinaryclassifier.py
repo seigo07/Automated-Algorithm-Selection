@@ -7,9 +7,9 @@ X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
 HIDDEN_SIZE = 100
-BATCH_SIZE = 64
+# BATCH_SIZE = 64
 # BATCH_SIZE = 32
-# BATCH_SIZE = 10
+BATCH_SIZE = 10
 
 
 class NNBinaryClassifier(torch.nn.Module):
@@ -40,12 +40,18 @@ class NNBinaryClassifier(torch.nn.Module):
         return logits
 
     def lossfn(self, y_pred, y):
-        return F.binary_cross_entropy(y_pred, y)
+        return F.binary_cross_entropy_with_logits(y_pred, y)
 
     def load_data(self, x, y):
         x = torch.tensor(x).float()
         # x = F.normalize(torch.from_numpy(x).float())
         y = torch.tensor(np.round(np.log10(y))).float()
+
+        # output_tensor = torch.tensor(y)
+        # output_tensor = output_tensor.unsqueeze(2)
+        # y = torch.nn.functional.one_hot(output_tensor.long())
+        # print("binary_vector:", y)
+
         dataset = torch.utils.data.TensorDataset(x, y)
         return dataset
 
@@ -59,8 +65,8 @@ class NNBinaryClassifier(torch.nn.Module):
         return train_dataset, val_dataset, train_loader, val_loader
 
     def train_net(self):
-        num_epochs = 100
-        lr = 1e-3
+        num_epochs = 1000
+        lr = 1e-7
         optimizer = torch.optim.Adam(self.parameters(), lr)
         for epoch in range(num_epochs):
             for x, y in self.train_loader:
