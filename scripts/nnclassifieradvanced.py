@@ -40,7 +40,9 @@ class NNClassifierAdvanced(torch.nn.Module):
         return logits
 
     def lossfn(self, y_pred, y):
-        return F.cross_entropy(y_pred, y, reduction="mean")
+        loss = F.cross_entropy(y_pred, y, reduction="mean")
+        regret = torch.mean(torch.abs(y_pred - y))
+        return loss + regret
 
     def load_data(self, x, y):
         # x = torch.tensor(x).float()
@@ -59,8 +61,8 @@ class NNClassifierAdvanced(torch.nn.Module):
         return train_dataset, val_dataset, train_loader, val_loader
 
     def train_net(self):
-        num_epochs = 100
-        lr = 1e-3
+        num_epochs = 1000
+        lr = 1e-7
         optimizer = torch.optim.Adam(self.parameters(), lr)
         for epoch in range(num_epochs):
             for x, y in self.train_loader:
