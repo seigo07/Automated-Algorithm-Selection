@@ -44,18 +44,8 @@ class NNClassifierAdvanced(torch.nn.Module):
 
     def load_data(self, x, y):
         # x = torch.tensor(x).float()
-        # y = torch.tensor(y).float()
         x = F.normalize(torch.from_numpy(x).float())
-        # y = F.normalize(torch.from_numpy(y).float())
         y = torch.tensor(np.round(np.log10(y))).float()
-
-        # y = torch.from_numpy(y_data).float()
-        # num_categories = [int(torch.max(y[:, i])) + 1 for i in range(y.shape[1])]
-        # one_hot_labels = torch.cat(
-        #     [torch.nn.functional.one_hot(y[:, i].to(torch.int64), num_categories[i]).float() for i in
-        #      range(y.shape[1])], dim=1)
-        # print("one_hot_labels:", one_hot_labels)
-
         dataset = torch.utils.data.TensorDataset(x, y)
         return dataset
 
@@ -69,8 +59,8 @@ class NNClassifierAdvanced(torch.nn.Module):
         return train_dataset, val_dataset, train_loader, val_loader
 
     def train_net(self):
-        num_epochs = 1000
-        lr = 1e-7
+        num_epochs = 100
+        lr = 1e-3
         optimizer = torch.optim.Adam(self.parameters(), lr)
         for epoch in range(num_epochs):
             for x, y in self.train_loader:

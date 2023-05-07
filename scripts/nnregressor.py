@@ -44,10 +44,7 @@ class NNRegressor(torch.nn.Module):
 
     def load_data(self, x, y):
         # x = torch.tensor(x).float()
-        # y = torch.tensor(y).float()
         x = F.normalize(torch.from_numpy(x).float())
-        # y = F.normalize(torch.from_numpy(y).float())
-        # x = torch.tensor(np.round(np.log10(x))).float()
         y = torch.tensor(np.round(np.log10(y))).float()
         dataset = torch.utils.data.TensorDataset(x, y)
         return dataset
