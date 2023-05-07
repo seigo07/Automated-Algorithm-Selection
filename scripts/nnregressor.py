@@ -8,6 +8,8 @@ Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
 HIDDEN_SIZE = 100
 BATCH_SIZE = 64
+# BATCH_SIZE = 32
+# BATCH_SIZE = 10
 
 
 class NNRegressor(torch.nn.Module):
@@ -97,7 +99,7 @@ class NNRegressor(torch.nn.Module):
             sbs_avg_cost = min(total_sbs / len(self.val_loader))
             vbs_avg_cost = total_vbs / len(self.val_loader)
             sbs_vbs_gap = (avg_cost - vbs_avg_cost) / (sbs_avg_cost - vbs_avg_cost)
-            print(f"\nval results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")
+            print(f"\nValidation results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")
 
     def test(self):
         x = np.loadtxt(self.data + X_FILE)

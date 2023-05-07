@@ -8,6 +8,8 @@ Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
 HIDDEN_SIZE = 100
 BATCH_SIZE = 64
+# BATCH_SIZE = 32
+# BATCH_SIZE = 10
 
 
 class NNClassifierBasic(torch.nn.Module):
