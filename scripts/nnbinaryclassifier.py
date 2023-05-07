@@ -7,9 +7,9 @@ X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
 HIDDEN_SIZE = 100
-# BATCH_SIZE = 64
-# BATCH_SIZE = 32
-BATCH_SIZE = 10
+BATCH_SIZE = 64
+BATCH_SIZE = 32
+# BATCH_SIZE = 10
 
 
 class NNBinaryClassifier(torch.nn.Module):
@@ -40,7 +40,9 @@ class NNBinaryClassifier(torch.nn.Module):
         return logits
 
     def lossfn(self, y_pred, y):
-        return F.binary_cross_entropy_with_logits(y_pred, y)
+        loss = F.binary_cross_entropy_with_logits(y_pred, y)
+        regret = torch.mean(torch.abs(y_pred - y))
+        return loss + regret
 
     def load_data(self, x, y):
         x = torch.tensor(x).float()
