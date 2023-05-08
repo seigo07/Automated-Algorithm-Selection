@@ -23,8 +23,8 @@ def main():
     # Part 1
     if args.model_type == "regresion_nn":
         print("Part 1")
-        # net = NNRegressor(args.data, args.save)
-        # net.main()
+        net = NNRegressor(args.data, args.save)
+        net.main()
     # Part 2 (basic)
     elif args.model_type == "classification_nn":
         print("Part 2 basic")
@@ -43,8 +43,8 @@ def main():
     # Part 3 (extension 2)
     elif args.model_type == "random_forest_classification":
         print("Part 3 extension 2")
-        rf = RandomForest(args.data, args.save)
-        rf.main()
+        # rf = RandomForest(args.data, args.save)
+        # rf.main()
 
 
 if __name__ == "__main__":

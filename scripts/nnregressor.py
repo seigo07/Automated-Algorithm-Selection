@@ -7,9 +7,9 @@ X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
 HIDDEN_SIZE = 100
-BATCH_SIZE = 64
+# BATCH_SIZE = 64
 # BATCH_SIZE = 32
-# BATCH_SIZE = 10
+BATCH_SIZE = 10
 
 
 class NNRegressor(torch.nn.Module):
@@ -90,7 +90,7 @@ class NNRegressor(torch.nn.Module):
                 _, predicted = torch.max(y_pred.data, 0)
                 total += y.size(0)
                 correct += (predicted == y).sum().item()
-            accuracy = 100 * correct / total
+            accuracy = correct / total
             avg_cost = total_cost / len(self.val_loader)
             avg_loss = total_loss / len(self.val_loader)
             sbs_avg_cost = min(total_sbs / len(self.val_loader))
@@ -125,7 +125,7 @@ class NNRegressor(torch.nn.Module):
                 _, predicted = torch.max(y_pred.data, 0)
                 total += y.size(0)
                 correct += (predicted == y).sum().item()
-            accuracy = 100 * correct / total
+            accuracy = correct / total
             avg_cost = total_cost / len(data_loader)
             avg_loss = total_loss / len(data_loader)
             sbs_avg_cost = min(total_sbs / len(data_loader))
