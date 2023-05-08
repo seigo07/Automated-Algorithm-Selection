@@ -77,15 +77,14 @@ def main():
     # Part 3 (extension 2)
     elif args.model == "models/part3_2.pt":
         loaded_rf = joblib.load(args.model)
-        # model = RandomForest(args.data, "")
-        # model.load_state_dict(torch.load(args.model))
-        # result = model.test()
-        # accuracy = result["accuracy"]
-        # avg_cost = result["avg_cost"]
-        # avg_loss = result["avg_loss"]
-        # sbs_avg_cost = result["sbs_avg_cost"]
-        # vbs_avg_cost = result["vbs_avg_cost"]
-        # sbs_vbs_gap = result["sbs_vbs_gap"]
+        rf = RandomForest(args.data, "")
+        result = rf.test(loaded_rf)
+        accuracy = result["accuracy"]
+        avg_cost = result["avg_cost"]
+        avg_loss = result["avg_loss"]
+        sbs_avg_cost = result["sbs_avg_cost"]
+        vbs_avg_cost = result["vbs_avg_cost"]
+        sbs_vbs_gap = result["sbs_vbs_gap"]
 
     # print results
     print(f"\nFinal results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")

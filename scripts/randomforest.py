@@ -54,4 +54,31 @@ class RandomForest:
             sbs_vbs_gap = (avg_cost - vbs_avg_cost) / (sbs_avg_cost - vbs_avg_cost)
             accuracy = 0
             print(f"\nval results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")
-        return rf
+            return rf
+
+    def test(self, rf):
+        x = np.loadtxt(self.data + X_FILE)
+        y = np.loadtxt(self.data + Y_FILE)
+        y_pred = rf.predict(x)
+        avg_loss = mean_squared_error(y, y_pred)
+        avg_cost = y_pred.mean()
+        test_loader = self.create_dataloader(x, y)
+        with torch.no_grad():
+            total_sbs = 0
+            total_vbs = 0
+            for x, y in test_loader:
+                total_sbs += sum(y) / len(y)
+                total_vbs += min([min(m) for m in y])
+            sbs_avg_cost = min(total_sbs / len(self.val_loader))
+            vbs_avg_cost = total_vbs / len(self.val_loader)
+            sbs_vbs_gap = (avg_cost - vbs_avg_cost) / (sbs_avg_cost - vbs_avg_cost)
+            accuracy = 0
+            result = {
+                "accuracy": accuracy,
+                "avg_cost": avg_cost,
+                "avg_loss": avg_loss,
+                "sbs_avg_cost": sbs_avg_cost,
+                "vbs_avg_cost": vbs_avg_cost,
+                "sbs_vbs_gap": sbs_vbs_gap
+            }
+            return result
