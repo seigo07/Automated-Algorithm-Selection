@@ -23,13 +23,13 @@ def main():
     # Part 1
     if args.model_type == "regresion_nn":
         print("Part 1")
-        net = NNRegressor(args.data, args.save)
-        net.main()
+        # net = NNRegressor(args.data, args.save)
+        # net.main()
     # Part 2 (basic)
     elif args.model_type == "classification_nn":
         print("Part 2 basic")
-        # net = NNClassifierBasic(args.data, args.save)
-        # net.main()
+        net = NNClassifierBasic(args.data, args.save)
+        net.main()
     # Part 2 (advanced)
     elif args.model_type == "classification_nn_cost":
         print("Part 2 advanced")
