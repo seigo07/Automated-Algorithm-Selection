@@ -6,6 +6,7 @@ from nnclassifierbasic import NNClassifierBasic
 from nnclassifieradvanced import NNClassifierAdvanced
 from nnbinaryclassifier import NNBinaryClassifier
 from randomforest import RandomForest
+import joblib
 
 X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
@@ -75,7 +76,8 @@ def main():
         sbs_vbs_gap = result["sbs_vbs_gap"]
     # Part 3 (extension 2)
     elif args.model == "models/part3_2.pt":
-        model = RandomForest(args.data, "")
+        loaded_rf = joblib.load(args.model)
+        # model = RandomForest(args.data, "")
         # model.load_state_dict(torch.load(args.model))
         # result = model.test()
         # accuracy = result["accuracy"]

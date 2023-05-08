@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 import torch
+import joblib
 
 X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
@@ -20,7 +21,8 @@ class RandomForest:
         self.val_loader = self.create_dataloader(self.x_val, self.y_val)
 
     def main(self):
-        self.train_and_validation()
+        rf = self.train_and_validation()
+        joblib.dump(rf, self.save)
 
     def load_and_split_data(self):
         x = np.array(np.loadtxt(self.data + X_FILE))
@@ -52,3 +54,4 @@ class RandomForest:
             sbs_vbs_gap = (avg_cost - vbs_avg_cost) / (sbs_avg_cost - vbs_avg_cost)
             accuracy = 0
             print(f"\nval results: loss: {avg_loss:8.4f}, \taccuracy: {accuracy:4.4f}, \tavg_cost: {avg_cost:8.4f}, \tsbs_cost: {sbs_avg_cost:8.4f}, \tvbs_cost: {vbs_avg_cost:8.4f}, \tsbs_vbs_gap: {sbs_vbs_gap:2.4f}")
+        return rf
