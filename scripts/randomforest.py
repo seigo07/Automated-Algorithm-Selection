@@ -69,8 +69,8 @@ class RandomForest:
             for x, y in test_loader:
                 total_sbs += sum(y) / len(y)
                 total_vbs += min([min(m) for m in y])
-            sbs_avg_cost = min(total_sbs / len(self.val_loader))
-            vbs_avg_cost = total_vbs / len(self.val_loader)
+            sbs_avg_cost = min(total_sbs / len(test_loader))
+            vbs_avg_cost = total_vbs / len(test_loader)
             sbs_vbs_gap = (avg_cost - vbs_avg_cost) / (sbs_avg_cost - vbs_avg_cost)
             accuracy = 0
             result = {
