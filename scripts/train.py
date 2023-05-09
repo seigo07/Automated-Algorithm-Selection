@@ -33,8 +33,8 @@ def main():
     # Part 2 (advanced)
     elif args.model_type == "classification_nn_cost":
         print("Part 2 advanced")
-        net = NNClassifierAdvanced(args.data, args.save)
-        net.main()
+        # net = NNClassifierAdvanced(args.data, args.save)
+        # net.main()
     # Part 3 (extension 1)
     elif args.model_type == "binary_classification_nn":
         print("Part 3 extension 1")
@@ -43,8 +43,8 @@ def main():
     # Part 3 (extension 2)
     elif args.model_type == "random_forest_classification":
         print("Part 3 extension 2")
-        # rf = RandomForest(args.data, args.save)
-        # rf.main()
+        rf = RandomForest(args.data, args.save)
+        rf.main()
 
 
 if __name__ == "__main__":
