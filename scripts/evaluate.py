@@ -79,7 +79,6 @@ def main():
         loaded_rf = joblib.load(args.model)
         rf = RandomForest(args.data, "")
         result = rf.test(loaded_rf)
-        # accuracy = result["accuracy"]
         avg_cost = result["avg_cost"]
         avg_loss = result["avg_loss"]
         sbs_avg_cost = result["sbs_avg_cost"]

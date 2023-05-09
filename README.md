@@ -16,4 +16,7 @@ Automated Algorithm Selection using Neural Networks.
 
 * Please run the following command
 ```
+cd Automated-Algorithm-Selection
+./install.sh
+./run.sh
 ```

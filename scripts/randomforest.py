@@ -53,7 +53,6 @@ class RandomForest:
         model.set_params(**best_params)
         model.fit(self.x_train, self.y_train)
         y_pred = model.predict(self.x_val)
-        # accuracy = accuracy_score(self.y_val, y_pred)
         accuracy = 0
         avg_loss = mean_squared_error(self.y_val, y_pred)
         avg_cost = y_pred.mean()
@@ -73,8 +72,6 @@ class RandomForest:
         x = np.loadtxt(self.data + X_FILE)
         y = np.loadtxt(self.data + Y_FILE)
         y_pred = rf.predict(x)
-        # accuracy = accuracy_score(y, y_pred)
-        # accuracy = 0
         avg_loss = mean_squared_error(y, y_pred)
         avg_cost = y_pred.mean()
         test_loader = self.create_dataloader(x, y)
@@ -88,7 +85,6 @@ class RandomForest:
             vbs_avg_cost = total_vbs / len(test_loader)
             sbs_vbs_gap = (avg_cost - vbs_avg_cost) / (sbs_avg_cost - vbs_avg_cost)
             result = {
-                # "accuracy": accuracy,
                 "avg_cost": avg_cost,
                 "avg_loss": avg_loss,
                 "sbs_avg_cost": sbs_avg_cost,
