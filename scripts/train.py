@@ -28,13 +28,13 @@ def main():
     # Part 2 (basic)
     elif args.model_type == "classification_nn":
         print("Part 2 basic")
-        net = NNClassifierBasic(args.data, args.save)
-        net.main()
+        # net = NNClassifierBasic(args.data, args.save)
+        # net.main()
     # Part 2 (advanced)
     elif args.model_type == "classification_nn_cost":
         print("Part 2 advanced")
-        # net = NNClassifierAdvanced(args.data, args.save)
-        # net.main()
+        net = NNClassifierAdvanced(args.data, args.save)
+        net.main()
     # Part 3 (extension 1)
     elif args.model_type == "binary_classification_nn":
         print("Part 3 extension 1")

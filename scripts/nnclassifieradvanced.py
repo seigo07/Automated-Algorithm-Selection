@@ -7,9 +7,7 @@ X_FILE = "instance-features.txt"
 Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
 HIDDEN_SIZE = 100
-BATCH_SIZE = 64
-# BATCH_SIZE = 32
-# BATCH_SIZE = 10
+BATCH_SIZE = 10
 
 
 class NNClassifierAdvanced(torch.nn.Module):
@@ -45,7 +43,6 @@ class NNClassifierAdvanced(torch.nn.Module):
         return loss + regret
 
     def load_data(self, x, y):
-        # x = torch.tensor(x).float()
         x = F.normalize(torch.from_numpy(x).float())
         y = torch.tensor(np.round(np.log10(y))).float()
         dataset = torch.utils.data.TensorDataset(x, y)
@@ -62,7 +59,7 @@ class NNClassifierAdvanced(torch.nn.Module):
 
     def train_net(self):
         num_epochs = 1000
-        lr = 1e-7
+        lr = 1e-5
         optimizer = torch.optim.Adam(self.parameters(), lr)
         for epoch in range(num_epochs):
             for x, y in self.train_loader:
