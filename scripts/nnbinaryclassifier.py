@@ -8,7 +8,7 @@ Y_FILE = "performance-data.txt"
 RANDOM_STATE = 42
 HIDDEN_SIZE = 100
 BATCH_SIZE = 64
-BATCH_SIZE = 32
+# BATCH_SIZE = 32
 # BATCH_SIZE = 10
 
 
@@ -45,8 +45,8 @@ class NNBinaryClassifier(torch.nn.Module):
         return loss + regret
 
     def load_data(self, x, y):
-        x = torch.tensor(x).float()
-        # x = F.normalize(torch.from_numpy(x).float())
+        # x = torch.tensor(x).float()
+        x = F.normalize(torch.from_numpy(x).float())
         y = torch.tensor(np.round(np.log10(y))).float()
 
         # output_tensor = torch.tensor(y)
